@@ -1,0 +1,1035 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --page-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-strong: #f2f2f2;
+  --text: #000000;
+  --muted: #4b4b4b;
+  --border: #000000;
+  --accent: #000000;
+  --accent-soft: #eeeeee;
+  --shadow-color: #000000;
+  --hero-line: rgba(0, 0, 0, 0.08);
+  --retro-shadow: 6px 6px 0 var(--shadow-color);
+  --retro-shadow-sm: 4px 4px 0 var(--shadow-color);
+}
+
+.dark {
+  color-scheme: dark;
+  --page-bg: #000000;
+  --surface: #050505;
+  --surface-strong: #111111;
+  --text: #e5e5e5;
+  --muted: #b5b5b5;
+  --border: #d0d0d0;
+  --accent: #e5e5e5;
+  --accent-soft: #1a1a1a;
+  --shadow-color: #d0d0d0;
+  --hero-line: rgba(208, 208, 208, 0.1);
+  --retro-shadow: 6px 6px 0 var(--shadow-color);
+  --retro-shadow-sm: 4px 4px 0 var(--shadow-color);
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    linear-gradient(var(--hero-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hero-line) 1px, transparent 1px),
+    var(--page-bg);
+  background-size: 72px 72px;
+  color: var(--text);
+  font-family: Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.surface-strong {
+  border: 3px solid var(--border);
+  background: var(--surface-strong);
+  box-shadow: var(--retro-shadow-sm);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.chat-fab {
+  align-items: center;
+  background: var(--page-bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  bottom: 1.25rem;
+  color: var(--text);
+  display: inline-flex;
+  height: 3.25rem;
+  justify-content: center;
+  outline: 2px solid var(--border);
+  outline-offset: 0;
+  position: fixed;
+  right: 1.25rem;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+  width: 3.25rem;
+  z-index: 60;
+}
+
+.chat-fab:hover,
+.chat-fab:focus-visible {
+  background: var(--accent-soft);
+  transform: translate(-2px, -2px);
+}
+
+.chat-fab:focus-visible {
+  outline-offset: 3px;
+}
+
+.chat-fab.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.82);
+  visibility: hidden;
+}
+
+.ai-chat-window {
+  background: var(--surface);
+  border: 3px solid var(--border);
+  border-radius: 8px;
+  bottom: 5.25rem;
+  box-shadow: var(--retro-shadow);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: min(620px, calc(100vh - 7rem));
+  min-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  position: fixed;
+  right: 1.25rem;
+  transform-origin: right bottom;
+  width: min(400px, calc(100vw - 2rem));
+  z-index: 70;
+}
+
+.ai-chat-header {
+  align-items: center;
+  background: var(--surface-strong);
+  border-bottom: 3px solid var(--border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.75rem;
+}
+
+.ai-chat-title {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.625rem;
+  font-size: 0.95rem;
+  font-weight: 900;
+  min-width: 0;
+}
+
+.ai-chat-title-copy {
+  display: grid;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.ai-chat-persona-label {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-chat-title-icon,
+.ai-chat-icon-button,
+.ai-chat-send {
+  align-items: center;
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  display: inline-flex;
+  justify-content: center;
+}
+
+.ai-chat-title-icon {
+  background: var(--page-bg);
+  height: 2.25rem;
+  width: 2.25rem;
+}
+
+.ai-chat-actions {
+  display: inline-flex;
+  gap: 0.45rem;
+}
+
+.ai-chat-icon-button,
+.ai-chat-send {
+  background: var(--surface);
+  height: 2.25rem;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+  width: 2.25rem;
+}
+
+.ai-chat-icon-button:hover:not(:disabled),
+.ai-chat-icon-button:focus-visible:not(:disabled),
+.ai-chat-send:hover:not(:disabled),
+.ai-chat-send:focus-visible:not(:disabled) {
+  background: var(--accent-soft);
+  transform: translate(-1px, -1px);
+}
+
+.ai-chat-messages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  overscroll-behavior: contain;
+  overflow-y: auto;
+  padding: 0.875rem;
+  scroll-behavior: smooth;
+}
+
+.ai-chat-empty {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  padding: 1rem;
+  text-align: center;
+}
+
+.ai-chat-row {
+  display: flex;
+}
+
+.ai-chat-row.is-user {
+  justify-content: flex-end;
+}
+
+.ai-chat-row.is-ai {
+  justify-content: flex-start;
+}
+
+.ai-chat-bubble {
+  background: var(--page-bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--retro-shadow-sm);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  max-width: min(82%, 20rem);
+  padding: 0.75rem 0.85rem;
+}
+
+.ai-chat-row.is-user .ai-chat-bubble {
+  background: var(--text);
+  color: var(--page-bg);
+}
+
+.ai-chat-bubble.is-error {
+  border-style: dashed;
+}
+
+.ai-chat-bubble p {
+  margin: 0;
+}
+
+.ai-chat-footer {
+  background: var(--surface-strong);
+  border-top: 3px solid var(--border);
+  padding: 0.75rem;
+}
+
+.ai-chat-clear-icon:disabled,
+.ai-chat-send:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.ai-chat-form {
+  align-items: end;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.ai-chat-form textarea {
+  background: var(--page-bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  line-height: 1.55;
+  max-height: 140px;
+  min-height: 2.75rem;
+  outline: none;
+  padding: 0.65rem 0.75rem;
+  resize: none;
+  width: 100%;
+}
+
+.ai-chat-form textarea:focus {
+  box-shadow: inset 3px 0 0 var(--border);
+}
+
+.ai-chat-send {
+  height: 2.75rem;
+  width: 2.75rem;
+}
+
+.ai-persona-screen {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.875rem;
+}
+
+.ai-persona-panel {
+  background: var(--page-bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--retro-shadow-sm);
+  display: grid;
+  gap: 0.875rem;
+  margin: auto;
+  padding: 1rem;
+  width: 100%;
+}
+
+.ai-persona-heading {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ai-persona-kicker {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ai-persona-heading h3 {
+  font-size: 1.2rem;
+  font-weight: 900;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.ai-persona-heading p,
+.ai-persona-gender p {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.ai-persona-options {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ai-persona-options.is-gender {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ai-persona-option {
+  align-items: start;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  display: grid;
+  gap: 0.2rem;
+  min-height: 3.45rem;
+  padding: 0.65rem;
+  text-align: left;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.ai-persona-option span {
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.ai-persona-option small {
+  color: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  opacity: 0.72;
+}
+
+.ai-persona-option:hover,
+.ai-persona-option:focus-visible,
+.ai-persona-option.is-active {
+  background: var(--text);
+  color: var(--page-bg);
+  transform: translate(-1px, -1px);
+}
+
+.ai-persona-gender {
+  border-top: 2px solid var(--border);
+  display: grid;
+  gap: 0.65rem;
+  padding-top: 0.875rem;
+}
+
+.ai-persona-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ai-persona-cancel {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 0.42rem 0.72rem;
+}
+
+.ai-typing-bubble {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.28rem;
+  min-height: 2.6rem;
+}
+
+.ai-typing-dot {
+  animation: typingDot 900ms ease-in-out infinite;
+  background: var(--text);
+  border-radius: 999px;
+  height: 0.38rem;
+  width: 0.38rem;
+}
+
+.ai-typing-dot:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.ai-typing-dot:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+@keyframes typingDot {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+
+  45% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+.ai-markdown {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.ai-markdown h3,
+.ai-markdown h4,
+.ai-markdown h5 {
+  font-size: 0.98rem;
+  font-weight: 900;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.ai-markdown ul,
+.ai-markdown ol {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.ai-markdown code {
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 0.82em;
+  padding: 0.08rem 0.28rem;
+}
+
+.ai-markdown pre {
+  background: var(--surface-strong);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  margin: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0.75rem;
+}
+
+.ai-markdown pre code {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  display: block;
+  padding: 0;
+  white-space: pre;
+}
+
+.hero-typing-badge {
+  max-width: 100%;
+}
+
+.hero-typing-text {
+  display: inline-grid;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.hero-typing-measure,
+.hero-typing-live {
+  grid-area: 1 / 1;
+}
+
+.hero-typing-measure {
+  visibility: hidden;
+}
+
+.hero-typing-live {
+  align-items: center;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.hero-typing-cursor {
+  animation: cursorBlink 880ms steps(2, start) infinite;
+  background: var(--accent);
+  display: inline-block;
+  height: 1.05em;
+  margin-left: 0.18rem;
+  width: 2px;
+}
+
+@keyframes cursorBlink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+
+  46%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  filter: blur(8px);
+  will-change: opacity, transform, filter;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  will-change: auto;
+}
+
+.about-cinema,
+.skill-console,
+.social-hub {
+  isolation: isolate;
+}
+
+.about-cinema::before,
+.skill-console::before,
+.social-hub::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background:
+    linear-gradient(90deg, var(--hero-line) 1px, transparent 1px),
+    linear-gradient(var(--hero-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.7;
+}
+
+.about-flight-stage,
+.skill-orbit {
+  perspective: 1200px;
+}
+
+.about-flight-stage {
+  background: var(--surface-strong);
+  isolation: isolate;
+}
+
+.about-flight-stage::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+  background:
+    linear-gradient(var(--hero-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hero-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(180deg, black, transparent 88%);
+  opacity: 0.45;
+}
+
+.about-flight-svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  width: 100%;
+  z-index: 4;
+}
+
+.about-roadmap-list {
+  display: grid;
+  gap: 1.65rem;
+  grid-auto-rows: auto;
+  grid-template-columns: minmax(0, 1fr);
+  padding-inline: 0;
+}
+
+.about-flight-path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-dasharray: 14 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 6;
+  opacity: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.about-plane {
+  height: 44px;
+  left: 0;
+  offset-anchor: center;
+  offset-distance: 0%;
+  offset-position: 0 0;
+  offset-rotate: auto;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transform-origin: center;
+  will-change: transform;
+  width: 44px;
+  z-index: 30;
+}
+
+.about-plane-shell {
+  align-items: center;
+  background: var(--accent);
+  border: 3px solid var(--page-bg);
+  border-radius: 8px;
+  box-shadow: var(--retro-shadow-sm);
+  color: var(--page-bg);
+  display: flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.about-roadmap-card {
+  align-content: start;
+  display: grid;
+  gap: 0.75rem;
+  min-height: 152px;
+}
+
+.about-flight-card {
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+  z-index: 10;
+}
+
+.about-card-header {
+  align-items: center;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 42px minmax(0, 1fr);
+}
+
+.about-card-meta {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.about-card-rule {
+  background: var(--border);
+  display: block;
+  flex: 1;
+  height: 1px;
+  min-width: 1.25rem;
+}
+
+.about-card-title {
+  margin-top: 0.1rem;
+}
+
+.about-flight-card.is-active {
+  border-color: var(--border);
+  box-shadow:
+    inset 3px 0 0 var(--accent),
+    var(--retro-shadow);
+}
+
+.about-card-checkpoint {
+  position: relative;
+  transition:
+    box-shadow 240ms ease,
+    transform 240ms ease;
+  z-index: 12;
+}
+
+.about-flight-card.is-active .about-card-checkpoint {
+  box-shadow: var(--retro-shadow-sm);
+  transform: scale(1.04);
+}
+
+.skill-chip,
+.social-node {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.skill-orbit-badge {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.skill-chip-center {
+  transform: translate(-50%, -50%);
+}
+
+.skill-orbit-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+.skill-orbit-ring-one {
+  height: var(--skill-orbit-diameter, 76%);
+  width: var(--skill-orbit-diameter, 76%);
+  box-shadow: var(--retro-shadow-sm);
+}
+
+.skill-orbit-ring-two {
+  height: var(--skill-orbit-inner-diameter, 52%);
+  width: var(--skill-orbit-inner-diameter, 52%);
+  border-style: dashed;
+  opacity: 0.72;
+}
+
+.skill-chip {
+  justify-content: center;
+  max-width: 148px;
+  transform-origin: center;
+}
+
+.skill-meter-fill {
+  background: var(--skill-meter-color, var(--accent));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+  width: 0%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .hero-typing-cursor {
+    animation: none;
+  }
+
+  .ai-typing-dot {
+    animation: none;
+  }
+
+}
+
+@media (max-width: 640px) {
+  .about-cinema {
+    padding: 1rem;
+  }
+
+  .chat-fab {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .ai-chat-window {
+    bottom: 1rem;
+    border-width: 2px;
+    border-radius: 10px;
+    box-shadow: 5px 5px 0 var(--shadow-color);
+    height: 85vh;
+    max-height: calc(100dvh - 2rem);
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+  }
+
+  .ai-chat-header {
+    border-bottom-width: 2px;
+    gap: 0.5rem;
+    height: 56px;
+    min-height: 56px;
+    padding: 0.5rem 0.625rem;
+  }
+
+  .ai-chat-title {
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .ai-chat-persona-label {
+    font-size: 0.6rem;
+    max-width: 5rem;
+  }
+
+  .ai-chat-title-icon {
+    height: 2rem;
+    width: 2rem;
+  }
+
+  .ai-chat-actions {
+    flex-shrink: 0;
+    gap: 0.25rem;
+  }
+
+  .ai-chat-icon-button {
+    height: 1.9rem;
+    width: 1.9rem;
+  }
+
+  .ai-chat-messages {
+    gap: 0.625rem;
+    padding: 0.625rem;
+  }
+
+  .ai-chat-empty {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    padding: 0.625rem;
+  }
+
+  .ai-chat-bubble {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    max-width: 88%;
+    padding: 0.625rem 0.7rem;
+  }
+
+  .ai-chat-footer {
+    border-top-width: 2px;
+    padding: 0.625rem;
+  }
+
+  .ai-chat-form {
+    align-items: end;
+    gap: 0.5rem;
+    grid-template-columns: minmax(0, 1fr) 2.5rem;
+  }
+
+  .ai-chat-form textarea {
+    font-size: 0.86rem;
+    line-height: 1.45;
+    max-height: 96px;
+    min-height: 2.5rem;
+    padding: 0.58rem 0.65rem;
+  }
+
+  .ai-chat-send {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+
+  .ai-persona-screen {
+    align-items: stretch;
+    padding: 0.625rem;
+  }
+
+  .ai-persona-panel {
+    align-content: start;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    gap: 0.7rem;
+    margin: 0;
+    padding: 0.75rem;
+  }
+
+  .ai-persona-heading h3 {
+    font-size: 1rem;
+  }
+
+  .ai-persona-heading p,
+  .ai-persona-gender p {
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+
+  .ai-persona-options {
+    gap: 0.45rem;
+  }
+
+  .ai-persona-option {
+    min-height: 3rem;
+    padding: 0.55rem;
+  }
+
+  .ai-persona-option span {
+    font-size: 0.82rem;
+  }
+
+  .ai-persona-option small {
+    font-size: 0.62rem;
+  }
+
+  .ai-persona-gender {
+    gap: 0.5rem;
+    padding-top: 0.7rem;
+  }
+
+  .about-flight-stage {
+    padding: 0.875rem;
+  }
+
+  .about-roadmap-list {
+    gap: 1.25rem;
+    padding-inline: 0;
+  }
+
+  .about-flight-path {
+    stroke-dasharray: 12 9;
+    stroke-width: 5;
+  }
+
+  .about-plane {
+    height: 32px;
+    width: 32px;
+  }
+
+  .about-plane-shell {
+    border-width: 2px;
+    height: 32px;
+    width: 32px;
+  }
+
+  .about-plane-shell svg {
+    height: 17px;
+    width: 17px;
+  }
+
+  .about-roadmap-card {
+    gap: 0.8rem;
+    min-height: 152px;
+    padding: 1rem;
+  }
+
+  .about-card-header {
+    gap: 0.625rem;
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .about-card-checkpoint {
+    height: 40px;
+    width: 40px;
+  }
+
+  .skill-orbit {
+    max-width: 19rem;
+    min-height: 0;
+  }
+
+  .skill-chip {
+    justify-content: center;
+    min-width: auto;
+    max-width: 96px;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.6875rem;
+    gap: 0.375rem;
+  }
+
+  .skill-chip svg {
+    height: 14px;
+    width: 14px;
+  }
+
+  .skill-chip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 768px) {
+  .about-roadmap-list {
+    gap: 1.25rem;
+    grid-auto-rows: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-roadmap-card {
+    height: 100%;
+    min-height: 190px;
+  }
+}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Portfolio personal Khazul Yussery, self-taught tech enthusiast yang membangun project teknologi secara mandiri."
+    />
+    <meta name="theme-color" content="#000000" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Khazul Yussery | Portfolio</title>
+    <script>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem("theme");
+          const hasSavedTheme = savedTheme === "dark" || savedTheme === "light";
+          const canReadSystemTheme = typeof window.matchMedia === "function";
+          const systemTheme = canReadSystemTheme && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          const theme = hasSavedTheme ? savedTheme : systemTheme;
+
+          document.documentElement.classList.toggle("dark", theme === "dark");
+          document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#000000" : "#ffffff");
+        } catch {
+          if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.classList.add("dark");
+          }
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
