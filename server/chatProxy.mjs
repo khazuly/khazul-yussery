@@ -3,6 +3,9 @@ import { resolve } from "node:path";
 
 const DEFAULT_AI_ENDPOINT = "https://khzlai-production.up.railway.app/api/chat";
 const MAX_BODY_SIZE = 32 * 1024;
+const MAX_HISTORY_MESSAGES = 16;
+const MAX_HISTORY_CONTENT_CHARS = 800;
+const MAX_PROMPT_CHARS = 6000;
 
 function loadDotEnv() {
   const envPath = resolve(process.cwd(), ".env");
@@ -96,25 +99,86 @@ function sanitizePersona(persona) {
   return Object.keys(safePersona).length > 0 ? safePersona : null;
 }
 
-function buildUpstreamPayload({ message, persona, systemPrompt }) {
+function sanitizeConversationId(value) {
+  const conversationId = String(value || "").trim();
+  if (!conversationId) return "";
+
+  return conversationId
+    .replace(/[^a-zA-Z0-9:._-]/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 120);
+}
+
+function truncateEnd(text, maxChars) {
+  const value = String(text || "").replace(/\s+/g, " ").trim();
+  if (value.length <= maxChars) return value;
+
+  return value.slice(0, maxChars).trim();
+}
+
+function sanitizeHistory(history) {
+  if (!Array.isArray(history)) return [];
+
+  return history
+    .map((entry) => {
+      const role = entry?.role === "assistant" ? "assistant" : entry?.role === "user" ? "user" : "";
+      const content = truncateEnd(entry?.content, MAX_HISTORY_CONTENT_CHARS);
+
+      if (!role || !content) return null;
+
+      return { role, content };
+    })
+    .filter(Boolean)
+    .slice(-MAX_HISTORY_MESSAGES);
+}
+
+function sameMessage(left, right) {
+  return String(left || "").replace(/\s+/g, " ").trim() === String(right || "").replace(/\s+/g, " ").trim();
+}
+
+function buildContextMessage({ message, history, systemPrompt }) {
   const trimmedPrompt = typeof systemPrompt === "string" ? systemPrompt.trim() : "";
-  const safePersona = sanitizePersona(persona);
+  const safeHistory = sanitizeHistory(history);
+  const priorUserMessages = safeHistory
+    .filter((entry) => entry.role === "user")
+    .map((entry) => entry.content);
 
   if (!trimmedPrompt) {
-    return {
-      message,
-      ...(safePersona ? { persona: safePersona } : {})
-    };
+    return message;
   }
 
-  return {
-    message: `${trimmedPrompt}\n\nTugas: balas hanya pesan pengguna berikut sesuai persona di atas.\n\nPesan pengguna:\n${message}`,
-    userMessage: message,
-    systemPrompt: trimmedPrompt,
-    system_prompt: trimmedPrompt,
-    instructions: trimmedPrompt,
-    ...(safePersona ? { persona: safePersona } : {})
+  if (sameMessage(priorUserMessages.at(-1), message)) {
+    priorUserMessages.pop();
+  }
+
+  const parts = ["System instructions:", trimmedPrompt];
+
+  if (priorUserMessages.length > 0) {
+    parts.push(
+      "",
+      "Previous user messages:",
+      ...priorUserMessages.map((content, index) => `${index + 1}. ${content}`)
+    );
+  }
+
+  parts.push("", "Current user message:", message);
+
+  return truncateEnd(parts.join("\n"), MAX_PROMPT_CHARS);
+}
+
+function buildUpstreamPayload({ conversationId, history, message, model, persona, systemPrompt }) {
+  const safePersona = sanitizePersona(persona);
+  const payload = {
+    message: buildContextMessage({ message, history, systemPrompt }),
+    reset: true
   };
+
+  const safeConversationId = sanitizeConversationId(conversationId);
+  if (safeConversationId) payload.conversation_id = safeConversationId;
+  if (typeof model === "string" && model.trim()) payload.model = model.trim();
+  if (safePersona) payload.persona = safePersona;
+
+  return payload;
 }
 
 export async function handleChatProxy(req, res) {
@@ -170,7 +234,16 @@ export async function handleChatProxy(req, res) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`
       },
-      body: JSON.stringify(buildUpstreamPayload({ message, persona: payload.persona, systemPrompt }))
+      body: JSON.stringify(
+        buildUpstreamPayload({
+          conversationId: payload.conversation_id || payload.conversationId,
+          history: payload.history,
+          message,
+          model: payload.model,
+          persona: payload.persona,
+          systemPrompt
+        })
+      )
     });
 
     const data = await parseUpstreamResponse(upstreamResponse);

@@ -39,6 +39,7 @@ const navItems = [
 ];
 
 const personaStorageKey = "khazul-ai-assistant-persona";
+const conversationStorageKey = "khazul-ai-assistant-conversations";
 
 const personaOptions = [
   { id: "ayah", label: "Ayah" },
@@ -52,84 +53,32 @@ const genderOptions = [
   { id: "wanita", label: "Wanita" }
 ];
 
-const globalPersonaPrompt = `ATURAN GLOBAL:
-- Jangan mengaku AI kecuali ditanya langsung.
-- Selalu konsisten dengan persona yang dipilih.
-- Gunakan bahasa Indonesia sehari-hari.
-- Boleh memakai singkatan chat yang natural.
-- Jangan tiba-tiba mengganti persona.
-- Persona tetap aktif sampai user menggantinya dari menu pengaturan persona.`;
-
 const personaPrompts = {
   ayah: `Kamu adalah sosok ayah yang hangat, sabar, suportif, dan peduli.
-Gunakan bahasa Indonesia sehari-hari.
 Panggil pengguna dengan "Nak".
 Gunakan gaya bicara seperti ayah kepada anak.
-Jangan gunakan kata "gw", "gue", "lo", atau "bro".
-Contoh:
-- "Iya Nak."
-- "Menurut Ayah..."
-- "Ayah bangga sama usaha kamu."
-- "Pelan-pelan saja Nak."`,
+Jangan gunakan kata "gw", "gue", "lo", atau "bro".`,
   ibu: `Kamu adalah sosok ibu yang lembut, perhatian, dan penyayang.
-Gunakan bahasa Indonesia sehari-hari.
 Panggil pengguna dengan "Nak".
-Jangan gunakan kata "gw", "gue", "lo", atau "bro".
-Contoh:
-- "Iya Nak."
-- "Kata Ibu..."
-- "Jangan lupa makan ya Nak."
-- "Ibu senang lihat perkembangan kamu."`,
+Gunakan gaya bicara seperti ibu kepada anak.
+Jangan gunakan kata "gw", "gue", "lo", atau "bro".`,
   pacar_pria: `Kamu adalah pacar laki-laki yang perhatian, hangat, romantis, dan suportif.
-Gunakan bahasa santai sehari-hari.
-Panggil pengguna dengan:
-- Sayang
-- Syg
-- Cintaku
-- Beb
+Panggil pengguna dengan "Sayang", "Syg", "Cintaku", atau "Beb".
 Gunakan bahasa natural seperti pasangan chat sehari-hari.
 Boleh memakai singkatan chat.
-Jangan berlebihan atau cringe.
-Contoh:
-- "Iya syg."
-- "Udah makan belum?"
-- "Aku bangga sama kamu."
-- "Semangat ya cintaku."`,
+Jangan berlebihan atau cringe.`,
   pacar_wanita: `Kamu adalah pacar perempuan yang manis, perhatian, hangat, dan suportif.
-Gunakan bahasa santai sehari-hari.
-Panggil pengguna dengan:
-- Sayang
-- Syg
-- Cintaku
-- Beb
+Panggil pengguna dengan "Sayang", "Syg", "Cintaku", atau "Beb".
 Gunakan bahasa natural seperti pasangan chat sehari-hari.
-Boleh memakai singkatan chat.
-Contoh:
-- "Iya sayang."
-- "Jangan lupa istirahat ya."
-- "Aku seneng lihat progres kamu."
-- "Semangat terus ya beb."`,
+Boleh memakai singkatan chat natural.`,
   teman_pria: `Kamu adalah teman cowok dekat.
 Gunakan bahasa santai sehari-hari.
-Gunakan gaya:
-- gw
-- lo
-Contoh:
-- "Wkwk iya juga."
-- "Menurut gw..."
-- "Gas aja sih."
-- "Santai bro."`,
+Gunakan gaya "gw" dan "lo" secara natural.
+Tetap ramah dan suportif.`,
   teman_wanita: `Kamu adalah teman cewek dekat.
 Gunakan bahasa santai sehari-hari.
-Boleh menggunakan:
-- gw
-- lo
-Tetap ramah dan natural.
-Contoh:
-- "Iya sih."
-- "Menurut gw..."
-- "Coba aja dulu."
-- "Lo pasti bisa."`
+Boleh menggunakan "gw" dan "lo" secara natural.
+Tetap ramah dan suportif.`
 };
 
 const aboutBeats = [
@@ -362,7 +311,7 @@ function buildPersonaSystemPrompt(persona) {
   const key = getPersonaKey(persona);
   const prompt = personaPrompts[key];
 
-  return prompt ? `${prompt}\n\n${globalPersonaPrompt}` : "";
+  return prompt || "";
 }
 
 function loadStoredPersona() {
@@ -387,6 +336,62 @@ function saveStoredPersona(persona) {
   }
 
   window.localStorage.setItem(personaStorageKey, JSON.stringify(normalized));
+}
+
+function randomId() {
+  if (typeof window !== "undefined" && window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function createConversationId(persona) {
+  const personaKey = getPersonaKey(persona) || "default";
+
+  return `portfolio:${personaKey}:${randomId()}`.slice(0, 120);
+}
+
+function loadConversationMap() {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const stored = window.localStorage.getItem(conversationStorageKey);
+    const parsed = stored ? JSON.parse(stored) : {};
+
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveConversationMap(map) {
+  if (typeof window === "undefined") return;
+
+  window.localStorage.setItem(conversationStorageKey, JSON.stringify(map));
+}
+
+function getStoredConversationId(persona) {
+  const personaKey = getPersonaKey(persona) || "default";
+  const map = loadConversationMap();
+  const stored = typeof map[personaKey] === "string" ? map[personaKey] : "";
+
+  if (stored) return stored;
+
+  const conversationId = createConversationId(persona);
+  saveConversationMap({ ...map, [personaKey]: conversationId });
+
+  return conversationId;
+}
+
+function resetStoredConversationId(persona) {
+  const personaKey = getPersonaKey(persona) || "default";
+  const map = loadConversationMap();
+  const conversationId = createConversationId(persona);
+
+  saveConversationMap({ ...map, [personaKey]: conversationId });
+
+  return conversationId;
 }
 
 function extractAssistantText(data) {
@@ -695,6 +700,7 @@ function AiAssistantChat() {
   const messagesEndRef = useRef(null);
   const animationRef = useRef(null);
   const personaRef = useRef(persona);
+  const conversationIdRef = useRef(persona ? getStoredConversationId(persona) : "");
   const activePersona = useMemo(() => normalizePersona(persona), [persona]);
   const personaLabel = useMemo(() => getPersonaLabel(activePersona), [activePersona]);
 
@@ -804,8 +810,11 @@ function AiAssistantChat() {
   const clearChat = useCallback(() => {
     setMessages([]);
     setInput("");
+    if (activePersona) {
+      conversationIdRef.current = resetStoredConversationId(activePersona);
+    }
     focusTextarea();
-  }, [focusTextarea]);
+  }, [activePersona, focusTextarea]);
 
   const openPersonaSetup = useCallback(() => {
     setPersonaDraft(activePersona || { type: "", gender: "" });
@@ -820,6 +829,11 @@ function AiAssistantChat() {
       setPersona(normalized);
       setPersonaDraft(normalized);
       saveStoredPersona(normalized);
+      if (getPersonaKey(personaRef.current) !== getPersonaKey(normalized)) {
+        conversationIdRef.current = resetStoredConversationId(normalized);
+        setMessages([]);
+        setInput("");
+      }
       setIsPersonaSetupOpen(false);
       focusTextarea();
     },
@@ -874,6 +888,13 @@ function AiAssistantChat() {
       role: "user",
       content: userMessage
     };
+    const conversationId = conversationIdRef.current || getStoredConversationId(currentPersona);
+    const outgoingHistory = [...messages, userEntry]
+      .slice(-16)
+      .map((messageEntry) => ({
+        role: messageEntry.role,
+        content: messageEntry.content
+      }));
 
     setMessages((current) => [...current, userEntry]);
     setInput("");
@@ -886,7 +907,9 @@ function AiAssistantChat() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
+          conversation_id: conversationId,
           message: userMessage,
+          history: outgoingHistory,
           systemPrompt: buildPersonaSystemPrompt(currentPersona),
           persona: {
             ...currentPersona,
@@ -924,7 +947,7 @@ function AiAssistantChat() {
     } finally {
       setIsSending(false);
     }
-  }, [input, isSending, persona]);
+  }, [input, isSending, messages, persona]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
