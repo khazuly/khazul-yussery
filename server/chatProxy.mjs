@@ -14,6 +14,7 @@ const MAX_HISTORY_CONTENT_CHARS = 800;
 const MAX_PROMPT_CHARS = 6000;
 const SESSION_TTL_MS = 90 * 60 * 1000;
 const SESSION_REFRESH_STATUSES = new Set([302, 401, 403, 419]);
+const LIMIT_ROTATION_ATTEMPTS = 3;
 
 let cachedAichatSession = null;
 let pendingSessionRefresh = null;
@@ -336,6 +337,10 @@ function parseAichatStream(text) {
   };
 }
 
+function isAichatLimitError(upstream) {
+  return upstream?.status === 429 || /limit|token/i.test(upstream?.error || "");
+}
+
 async function reportAichatUsage(session, usage) {
   const promptTokens = Number(usage?.prompt_tokens || 0);
   const completionTokens = Number(usage?.completion_tokens || 0);
@@ -448,8 +453,22 @@ export async function handleChatProxy(req, res) {
       upstream = await sendAichatRequest(session, aichatPayload);
     }
 
+    for (
+      let rotation = 0;
+      !upstream.ok && isAichatLimitError(upstream) && rotation < LIMIT_ROTATION_ATTEMPTS;
+      rotation += 1
+    ) {
+      session = await getAichatSession({ force: true });
+      upstream = await sendAichatRequest(session, aichatPayload);
+
+      if (!upstream.ok && SESSION_REFRESH_STATUSES.has(upstream.status)) {
+        session = await getAichatSession({ force: true });
+        upstream = await sendAichatRequest(session, aichatPayload);
+      }
+    }
+
     if (!upstream.ok) {
-      const isLimit = upstream.status === 429 || /limit|token/i.test(upstream.error || "");
+      const isLimit = isAichatLimitError(upstream);
 
       sendJson(res, isLimit ? 429 : upstream.status >= 500 ? 502 : upstream.status, {
         error: isLimit
