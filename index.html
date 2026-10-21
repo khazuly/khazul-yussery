@@ -7,12 +7,12 @@
       name="description"
       content="Portfolio personal Khazul Yussery, self-taught tech enthusiast yang membangun project teknologi secara mandiri."
     />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#fafbf9" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <title>Khazul Yussery | Portfolio</title>
@@ -22,13 +22,22 @@
           const savedTheme = localStorage.getItem("theme");
           const hasSavedTheme = savedTheme === "dark" || savedTheme === "light";
           const canReadSystemTheme = typeof window.matchMedia === "function";
-          const systemTheme = canReadSystemTheme && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          const systemTheme =
+            canReadSystemTheme &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
           const theme = hasSavedTheme ? savedTheme : systemTheme;
 
           document.documentElement.classList.toggle("dark", theme === "dark");
-          document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#000000" : "#ffffff");
+          document
+            .querySelector('meta[name="theme-color"]')
+            ?.setAttribute("content", theme === "dark" ? "#101b19" : "#fafbf9");
         } catch {
-          if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          if (
+            typeof window.matchMedia === "function" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+          ) {
             document.documentElement.classList.add("dark");
           }
         }

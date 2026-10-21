@@ -3,7 +3,9 @@ export const themeStorageKey = "theme";
 export function getSystemTheme() {
   if (typeof window === "undefined" || !window.matchMedia) return "light";
 
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }
 
 export function getSavedTheme() {
@@ -26,7 +28,9 @@ export function applyTheme(theme) {
 
   const isDark = theme === "dark";
   document.documentElement.classList.toggle("dark", isDark);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isDark ? "#000000" : "#ffffff");
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", isDark ? "#101b19" : "#fafbf9");
 }
 
 export function saveTheme(theme) {

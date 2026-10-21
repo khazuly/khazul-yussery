@@ -4,3 +4,12 @@ node_modules
 dist
 .DS_Store
 *.local
+
+.cache/
+
+# Reproducible motion-video intermediates; keep the final MP4 and sources.
+/output/portfolio-showcase/video-*.mp4
+/output/portfolio-showcase/music-mix.wav
+/output/portfolio-showcase/review/
+/output/portfolio-showcase/stills/
+/output/portfolio-showcase/assets/portfolio-smoke.png

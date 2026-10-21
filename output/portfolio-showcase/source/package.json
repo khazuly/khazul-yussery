@@ -1,0 +1,12 @@
+{
+  "name": "khazul-portfolio-showcase",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "capture": "node capture.mjs",
+    "preview": "node render.mjs --stills",
+    "render": "node render.mjs",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": { "@napi-rs/canvas": "0.1.68" }
+}

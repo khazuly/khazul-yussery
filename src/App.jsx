@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { animate, createTimeline, stagger } from "animejs";
+import { animate } from "animejs";
 import {
   ArrowUpRight,
   Bot,
+  BookOpen,
   BriefcaseBusiness,
   Camera,
   Code2,
@@ -11,31 +12,34 @@ import {
   Layers3,
   Menu,
   MessageCircle,
-  Minus,
   Moon,
   Network,
   Route,
   Send,
-  SendHorizontal,
   Settings2,
   Sun,
   Terminal,
   Trash2,
   Wifi,
   X,
-  Zap
+  Zap,
 } from "lucide-react";
 import profilePhoto from "../assets/my/my.webp";
-import { applyTheme, getInitialTheme, getSavedTheme, getSystemTheme, getSystemThemeMedia, saveTheme } from "./theme.js";
+import calistungScreenshot from "../assets/projects/ayo-belajar-beranda.webp";
+import {
+  applyTheme,
+  getInitialTheme,
+  getSavedTheme,
+  getSystemTheme,
+  getSystemThemeMedia,
+  saveTheme,
+} from "./theme.js";
 
 const navItems = [
-  { id: "tentang", label: "Tentang" },
-  { id: "perjalanan", label: "Perjalanan" },
-  { id: "skill", label: "Skill" },
-  { id: "ai", label: "Era AI" },
   { id: "project", label: "Project" },
-  { id: "social", label: "Social" },
-  { id: "contact", label: "Contact" }
+  { id: "tentang", label: "Tentang" },
+  { id: "skill", label: "Skill" },
+  { id: "contact", label: "Kontak" },
 ];
 
 const personaStorageKey = "khazul-ai-assistant-persona";
@@ -45,12 +49,12 @@ const personaOptions = [
   { id: "ayah", label: "Ayah" },
   { id: "ibu", label: "Ibu" },
   { id: "pacar", label: "Pacar", needsGender: true },
-  { id: "teman", label: "Teman", needsGender: true }
+  { id: "teman", label: "Teman", needsGender: true },
 ];
 
 const genderOptions = [
   { id: "pria", label: "Pria" },
-  { id: "wanita", label: "Wanita" }
+  { id: "wanita", label: "Wanita" },
 ];
 
 const personaPrompts = {
@@ -78,87 +82,97 @@ Tetap ramah dan suportif.`,
   teman_wanita: `Kamu adalah teman cewek dekat.
 Gunakan bahasa santai sehari-hari.
 Boleh menggunakan "gw" dan "lo" secara natural.
-Tetap ramah dan suportif.`
+Tetap ramah dan suportif.`,
 };
-
-const aboutBeats = [
-  {
-    label: "TKJ",
-    title: "Pondasi teknis",
-    body: "Dasar komputer, jaringan, dan troubleshooting mulai terbentuk dari jurusan Teknik Komputer dan Jaringan.",
-    icon: Network
-  },
-  {
-    label: "Kerja",
-    title: "Realita setelah lulus",
-    body: "Tidak langsung lanjut pendidikan IT atau bekerja formal di teknologi karena kondisi pendidikan dan biaya.",
-    icon: BriefcaseBusiness
-  },
-  {
-    label: "Mandiri",
-    title: "Belajar di sela waktu",
-    body: "Saat ini bekerja sebagai sopir, sambil tetap belajar coding, mencoba ide, dan memperbaiki project sendiri.",
-    icon: Route
-  },
-  {
-    label: "Project",
-    title: "Serius membangun project",
-    body: "Haruchan Warming menjadi ruang praktik untuk bot, automation, API key, UI, dan eksperimen AI.",
-    icon: Bot
-  }
-];
 
 const journey = [
   {
+    label: "TKJ",
+    icon: Network,
     title: "SMK Teknik Komputer dan Jaringan",
-    body: "Dasar komputer, jaringan, dan troubleshooting mulai terbentuk dari jurusan TKJ."
+    body: "Dasar komputer, jaringan, dan troubleshooting mulai terbentuk dari jurusan TKJ.",
   },
   {
+    label: "Kerja",
+    icon: BriefcaseBusiness,
     title: "Bekerja di luar bidang teknologi",
-    body: "Setelah tamat SMK, saya tidak langsung melanjutkan pendidikan IT atau bekerja formal di teknologi karena kondisi pendidikan dan biaya."
+    body: "Setelah tamat SMK, saya tidak langsung melanjutkan pendidikan IT atau bekerja formal di teknologi karena kondisi pendidikan dan biaya.",
   },
   {
+    label: "Mandiri",
+    icon: Route,
     title: "Belajar mandiri sambil bekerja",
-    body: "Saat ini saya bekerja sebagai sopir, namun tetap menyisihkan waktu untuk belajar coding, mencoba ide, dan membangun project sendiri."
+    body: "Saat ini saya bekerja sebagai sopir, namun tetap menyisihkan waktu untuk belajar coding, mencoba ide, dan membangun project sendiri.",
   },
   {
+    label: "Project",
+    icon: Bot,
     title: "Membangun Haruchan Warming",
-    body: "Project ini menjadi ruang praktik untuk automation, integrasi bot, API key, AI persona, media, dan workflow Telegram/WhatsApp."
-  }
+    body: "Project ini menjadi ruang praktik untuk automation, integrasi bot, API key, AI persona, media, dan workflow Telegram/WhatsApp.",
+  },
+  {
+    label: "Aplikasi edukasi",
+    icon: BookOpen,
+    title: "Menyelesaikan Ayo Belajar Calistung",
+    body: "Membangun aplikasi Android untuk menemani anak belajar membaca, menulis, dan berhitung melalui permainan berbahasa Indonesia.",
+  },
+];
+
+const calistungFeatures = [
+  "Membaca, menulis & berhitung",
+  "Mengenal huruf, angka & hewan",
+  "Panduan suara Indonesia",
+  "Permainan & audio offline",
+  "Progres belajar di perangkat",
+  "Area orang tua",
 ];
 
 const skills = [
-  { name: "Python", group: "Programming", level: 85, icon: Terminal, note: "Automation & scripting", color: "#22c55e" },
-  { name: "JavaScript", group: "Programming", level: 80, icon: Code2, note: "Logic & web behavior", color: "#facc15" },
-  { name: "HTML", group: "Frontend", level: 90, icon: Layers3, note: "Structure", color: "#f97316" },
-  { name: "CSS", group: "Frontend", level: 85, icon: Layers3, note: "Layout & styling", color: "#38bdf8" },
-  { name: "Bootstrap", group: "Frontend", level: 75, icon: Compass, note: "Fast UI build", color: "#a855f7" },
-  { name: "Tailwind", group: "Frontend", level: 82, icon: Zap, note: "Utility-first styling", color: "#06b6d4" },
-  { name: "Basic Networking / TKJ", group: "Networking", level: 70, icon: Wifi, note: "Network basics", color: "#94a3b8" }
+  {
+    name: "Python",
+    group: "Programming",
+    icon: Terminal,
+    note: "Automation & scripting",
+  },
+  {
+    name: "JavaScript",
+    group: "Programming",
+    icon: Code2,
+    note: "Logic & web behavior",
+  },
+  {
+    name: "HTML",
+    group: "Frontend",
+    icon: Layers3,
+    note: "Structure",
+  },
+  {
+    name: "CSS",
+    group: "Frontend",
+    icon: Layers3,
+    note: "Layout & styling",
+  },
+  {
+    name: "Bootstrap",
+    group: "Frontend",
+    icon: Compass,
+    note: "Fast UI build",
+  },
+  {
+    name: "Tailwind",
+    group: "Frontend",
+    icon: Zap,
+    note: "Utility-first styling",
+  },
+  {
+    name: "Basic Networking / TKJ",
+    group: "Networking",
+    icon: Wifi,
+    note: "Network basics",
+  },
 ];
 
 const skillGroups = ["Programming", "Frontend", "Networking"];
-
-function getSkillOrbitPositions(orbit, total = skills.length) {
-  const rect = orbit.getBoundingClientRect();
-  const size = Math.min(rect.width || 320, rect.height || rect.width || 320);
-  const isMobile = window.matchMedia("(max-width: 640px)").matches;
-  const radius = isMobile
-    ? Math.min(116, Math.max(94, size * 0.36))
-    : Math.min(168, Math.max(132, size * 0.38));
-
-  orbit.style.setProperty("--skill-orbit-diameter", `${radius * 2}px`);
-  orbit.style.setProperty("--skill-orbit-inner-diameter", `${radius * 1.36}px`);
-
-  return Array.from({ length: total }, (_, index) => {
-    const angle = -90 + (360 / total) * index;
-    const radians = (angle * Math.PI) / 180;
-    return {
-      x: Math.round(Math.cos(radians) * radius),
-      y: Math.round(Math.sin(radians) * radius)
-    };
-  });
-}
 
 const projectFeatures = [
   "Telegram/WhatsApp automation",
@@ -166,101 +180,46 @@ const projectFeatures = [
   "AI persona dan voice note",
   "Auto status/bio",
   "Random media",
-  "API key"
+  "API key",
 ];
 
 const socialLinks = [
   { name: "GitHub", href: "https://www.github.com/khazulys", icon: Code2 },
-  { name: "Second GitHub", href: "https://www.github.com/khazuly", icon: Code2 },
-  { name: "Instagram", href: "https://www.instagram.com/khazulys", icon: Camera },
-  { name: "Threads", href: "https://www.threads.com/@khazulys", icon: MessageCircle },
-  { name: "Facebook", href: "https://www.facebook.com/khazul.yussery.2025", icon: Globe2 },
-  { name: "Fanspage", href: "https://www.facebook.com/python.codeer", icon: Globe2 },
+  {
+    name: "Second GitHub",
+    href: "https://www.github.com/khazuly",
+    icon: Code2,
+  },
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/khazulys",
+    icon: Camera,
+  },
+  {
+    name: "Threads",
+    href: "https://www.threads.com/@khazulys",
+    icon: MessageCircle,
+  },
+  {
+    name: "Facebook",
+    href: "https://www.facebook.com/khazul.yussery.2025",
+    icon: Globe2,
+  },
+  {
+    name: "Fanspage",
+    href: "https://www.facebook.com/python.codeer",
+    icon: Globe2,
+  },
   { name: "Telegram", href: "https://t.me/khazulyss", icon: Send },
-  { name: "Quora", href: "https://id.quora.com/profile/Khazul-Yussery", icon: MessageCircle }
+  {
+    name: "Quora",
+    href: "https://id.quora.com/profile/Khazul-Yussery",
+    icon: MessageCircle,
+  },
 ];
-
-const contactLinks = [
-  { label: "Telegram", href: "https://t.me/khazulyss", icon: Send },
-  { label: "GitHub", href: "https://www.github.com/khazulys", icon: Code2 }
-];
-
-const heroBadgeText = "Self-taught tech enthusiast";
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function animateLift(event, active) {
-  if (prefersReducedMotion()) return;
-
-  animate(event.currentTarget, {
-    scale: active ? 1.025 : 1,
-    duration: active ? 260 : 320,
-    ease: "out(3)"
-  });
-}
-
-function createCardRoute(points) {
-  if (points.length === 0) return "";
-
-  return points.reduce((path, point, index) => {
-    if (index === 0) return `M ${point.x} ${point.y}`;
-
-    const previous = points[index - 1];
-    const dx = point.x - previous.x;
-    const dy = point.y - previous.y;
-    const cardsShareRow =
-      Math.min(previous.card.bottom, point.card.bottom) - Math.max(previous.card.top, point.card.top) > 0;
-    const cardsShareColumn =
-      Math.min(previous.card.right, point.card.right) - Math.max(previous.card.left, point.card.left) > 0;
-
-    if (cardsShareRow) {
-      const pull = Math.abs(dx) * 0.42;
-      return `${path} C ${previous.x + pull} ${previous.y}, ${point.x - pull} ${point.y}, ${point.x} ${point.y}`;
-    }
-
-    if (cardsShareColumn) {
-      const pull = Math.abs(dy) * 0.42;
-      return `${path} C ${previous.x} ${previous.y + pull}, ${point.x} ${point.y - pull}, ${point.x} ${point.y}`;
-    }
-
-    const gapY = (previous.card.bottom + point.card.top) / 2;
-    const bridgeX = previous.x + dx * 0.5;
-    const verticalPull = Math.min(92, Math.max(36, Math.abs(dy) * 0.28));
-
-    return [
-      path,
-      `C ${previous.x} ${previous.y + verticalPull}, ${previous.x} ${gapY}, ${bridgeX} ${gapY}`,
-      `C ${point.x} ${gapY}, ${point.x} ${point.y - verticalPull}, ${point.x} ${point.y}`
-    ].join(" ");
-  }, "");
-}
-
-function createPathStops(path, points) {
-  const total = path.getTotalLength() || 1;
-  let searchStart = 0;
-
-  return points.map((target, index) => {
-    if (index === 0) return 0;
-
-    let bestLength = searchStart;
-    let bestDistance = Number.POSITIVE_INFINITY;
-    const step = Math.max(1.5, total / 600);
-
-    for (let length = searchStart; length <= total; length += step) {
-      const point = path.getPointAtLength(length);
-      const distance = Math.hypot(point.x - target.x, point.y - target.y);
-
-      if (distance < bestDistance) {
-        bestDistance = distance;
-        bestLength = length;
-      }
-    }
-
-    searchStart = bestLength;
-    return bestLength / total;
-  });
 }
 
 function personaNeedsGender(type) {
@@ -280,7 +239,7 @@ function normalizePersona(persona) {
 
   return {
     type,
-    gender: personaNeedsGender(type) ? gender : ""
+    gender: personaNeedsGender(type) ? gender : "",
   };
 }
 
@@ -292,16 +251,21 @@ function getPersonaKey(persona) {
   const normalized = normalizePersona(persona);
   if (!normalized) return "";
 
-  return normalized.gender ? `${normalized.type}_${normalized.gender}` : normalized.type;
+  return normalized.gender
+    ? `${normalized.type}_${normalized.gender}`
+    : normalized.type;
 }
 
 function getPersonaLabel(persona) {
   const normalized = normalizePersona(persona);
   if (!normalized) return "Pilih persona";
 
-  const typeLabel = personaOptions.find((option) => option.id === normalized.type)?.label || "Persona";
+  const typeLabel =
+    personaOptions.find((option) => option.id === normalized.type)?.label ||
+    "Persona";
   const genderLabel = normalized.gender
-    ? genderOptions.find((option) => option.id === normalized.gender)?.label || ""
+    ? genderOptions.find((option) => option.id === normalized.gender)?.label ||
+      ""
     : "";
 
   return [typeLabel, genderLabel].filter(Boolean).join(" ");
@@ -398,7 +362,15 @@ function extractAssistantText(data) {
   if (typeof data === "string") return data;
   if (!data || typeof data !== "object") return "";
 
-  const directKeys = ["reply", "response", "message", "answer", "text", "content", "result"];
+  const directKeys = [
+    "reply",
+    "response",
+    "message",
+    "answer",
+    "text",
+    "content",
+    "result",
+  ];
   for (const key of directKeys) {
     if (typeof data[key] === "string") return data[key];
   }
@@ -475,8 +447,10 @@ function MarkdownContent({ content }) {
       index += 1;
       blocks.push(
         <pre key={`code-${blocks.length}`}>
-          <code data-language={language || undefined}>{codeLines.join("\n")}</code>
-        </pre>
+          <code data-language={language || undefined}>
+            {codeLines.join("\n")}
+          </code>
+        </pre>,
       );
       continue;
     }
@@ -487,7 +461,7 @@ function MarkdownContent({ content }) {
       blocks.push(
         <HeadingTag key={`heading-${blocks.length}`}>
           {renderInlineMarkdown(heading[2], `heading-${blocks.length}`)}
-        </HeadingTag>
+        </HeadingTag>,
       );
       index += 1;
       continue;
@@ -514,7 +488,7 @@ function MarkdownContent({ content }) {
               {renderInlineMarkdown(item, `list-${blocks.length}-${itemIndex}`)}
             </li>
           ))}
-        </ListTag>
+        </ListTag>,
       );
       continue;
     }
@@ -535,8 +509,11 @@ function MarkdownContent({ content }) {
 
     blocks.push(
       <p key={`paragraph-${blocks.length}`}>
-        {renderInlineMarkdown(paragraph.join(" "), `paragraph-${blocks.length}`)}
-      </p>
+        {renderInlineMarkdown(
+          paragraph.join(" "),
+          `paragraph-${blocks.length}`,
+        )}
+      </p>,
     );
   }
 
@@ -544,144 +521,107 @@ function MarkdownContent({ content }) {
 }
 
 function App() {
-  const [theme, setTheme] = useState(() => getInitialTheme());
-  const [hasManualTheme, setHasManualTheme] = useState(() => Boolean(getSavedTheme()));
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(getInitialTheme);
+  const [hasManualTheme, setHasManualTheme] = useState(() =>
+    Boolean(getSavedTheme()),
+  );
+  const [activeSection, setActiveSection] = useState("");
   const mainRef = useRef(null);
-  const isDark = theme === "dark";
 
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
-
   useEffect(() => {
-    if (hasManualTheme) return undefined;
-
+    if (hasManualTheme) return;
     const media = getSystemThemeMedia();
-    if (!media) return undefined;
-
-    const syncSystemTheme = () => {
-      setTheme(getSystemTheme());
-    };
-
-    syncSystemTheme();
-
-    if (media.addEventListener) {
-      media.addEventListener("change", syncSystemTheme);
-      return () => media.removeEventListener("change", syncSystemTheme);
-    }
-
-    media.addListener(syncSystemTheme);
-    return () => media.removeListener(syncSystemTheme);
+    if (!media) return;
+    const sync = () => setTheme(getSystemTheme());
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
   }, [hasManualTheme]);
 
   useEffect(() => {
     const root = mainRef.current;
-    if (!root) return undefined;
-
-    const reduceMotion = prefersReducedMotion();
-    const revealElements = [...root.querySelectorAll(".reveal")];
-
-    if (reduceMotion) {
-      revealElements.forEach((element) => element.classList.add("is-visible"));
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const animations = new Set();
+    const reveal = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-
-          const target = entry.target;
-          const delay = Number(target.getAttribute("data-delay") || 0);
-
-          animate(target, {
+        entries.forEach(({ target, isIntersecting }) => {
+          if (!isIntersecting) return;
+          reveal.unobserve(target);
+          if (media.matches) return;
+          const animation = animate(target, {
             opacity: [0, 1],
-            translateY: [28, 0],
-            filter: ["blur(10px)", "blur(0px)"],
-            duration: 780,
-            delay,
+            translateY: [18, 0],
+            duration: 520,
+            delay: Number(target.dataset.delay || 0),
             ease: "out(3)",
-            onComplete: () => target.classList.add("is-visible")
+            onComplete: () => animations.delete(animation),
           });
-
-          const meters = target.querySelectorAll(".skill-meter-fill");
-          meters.forEach((meter, index) => {
-            animate(meter, {
-              width: [`0%`, `${meter.getAttribute("data-level")}%`],
-              duration: 960,
-              delay: 180 + index * 70,
-              ease: "out(3)"
-            });
-          });
-
-          observer.unobserve(target);
+          animations.add(animation);
         });
       },
-      { threshold: 0.16, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0.08 },
     );
-
-    revealElements.forEach((element) => observer.observe(element));
-
+    root.querySelectorAll(".reveal").forEach((el) => reveal.observe(el));
+    const showAll = () => {
+      if (!media.matches) return;
+      animations.forEach((a) => a.complete());
+      animations.clear();
+      reveal.disconnect();
+    };
+    media.addEventListener("change", showAll);
+    const updateActive = () => {
+      let current = "";
+      navItems.forEach(({ id }) => {
+        const rect = document.getElementById(id)?.getBoundingClientRect();
+        if (rect && rect.top <= window.innerHeight * 0.4) current = id;
+      });
+      if (
+        window.scrollY + window.innerHeight >=
+        document.documentElement.scrollHeight - 4
+      )
+        current = "contact";
+      setActiveSection(current);
+    };
+    updateActive();
+    window.addEventListener("scroll", updateActive, { passive: true });
     return () => {
-      observer.disconnect();
+      reveal.disconnect();
+      animations.forEach((a) => a.revert());
+      media.removeEventListener("change", showAll);
+      window.removeEventListener("scroll", updateActive);
     };
   }, []);
 
-  const scrollToSection = useCallback((id) => {
-    const target = document.getElementById(id);
-    if (!target) return;
-
-    setIsMenuOpen(false);
-
-    const navbarOffset = 100;
-    const targetTop = Math.max(0, target.getBoundingClientRect().top + window.scrollY - navbarOffset);
-
-    if (prefersReducedMotion()) {
-      window.scrollTo(0, targetTop);
-      return;
-    }
-
-    window.scrollTo({
-      top: targetTop,
-      behavior: "smooth"
-    });
-  }, []);
-
-  const themeLabel = useMemo(() => (isDark ? "Aktifkan light mode" : "Aktifkan dark mode"), [isDark]);
-  const toggleTheme = useCallback(() => {
+  const toggleTheme = () => {
     setHasManualTheme(true);
-    setTheme((currentTheme) => {
-      const nextTheme = currentTheme === "dark" ? "light" : "dark";
-      saveTheme(nextTheme);
-      applyTheme(nextTheme);
-      return nextTheme;
+    setTheme((current) => {
+      const next = current === "dark" ? "light" : "dark";
+      saveTheme(next);
+      return next;
     });
-  }, []);
-
+  };
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="portfolio">
+      <a className="skip-link" href="#main">
+        Langsung ke konten
+      </a>
       <Header
-        isDark={isDark}
-        isMenuOpen={isMenuOpen}
-        onToggleMenu={() => setIsMenuOpen((value) => !value)}
-        onCloseMenu={() => setIsMenuOpen(false)}
-        onNavigate={scrollToSection}
+        theme={theme}
+        activeSection={activeSection}
         onToggleTheme={toggleTheme}
-        themeLabel={themeLabel}
       />
-
-      <main ref={mainRef}>
+      <main id="main" ref={mainRef} tabIndex={-1}>
         <Hero />
+        <Project />
         <About />
-        <Journey />
         <Skills />
         <AiSection />
-        <Project />
         <Social />
         <Contact />
       </main>
-
       <AiAssistantChat />
     </div>
   );
@@ -696,13 +636,19 @@ function AiAssistantChat() {
   const [personaDraft, setPersonaDraft] = useState({ type: "", gender: "" });
   const [isPersonaSetupOpen, setIsPersonaSetupOpen] = useState(false);
   const panelRef = useRef(null);
+  const launcherRef = useRef(null);
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
   const animationRef = useRef(null);
   const personaRef = useRef(persona);
-  const conversationIdRef = useRef(persona ? getStoredConversationId(persona) : "");
+  const conversationIdRef = useRef(
+    persona ? getStoredConversationId(persona) : "",
+  );
   const activePersona = useMemo(() => normalizePersona(persona), [persona]);
-  const personaLabel = useMemo(() => getPersonaLabel(activePersona), [activePersona]);
+  const personaLabel = useMemo(
+    () => getPersonaLabel(activePersona),
+    [activePersona],
+  );
 
   const focusTextarea = useCallback(() => {
     window.requestAnimationFrame(() => {
@@ -721,18 +667,33 @@ function AiAssistantChat() {
 
     if (!panel || prefersReducedMotion()) {
       setIsMounted(false);
+      requestAnimationFrame(() => launcherRef.current?.focus());
       return;
     }
 
     animationRef.current = animate(panel, {
-      scale: [1, 0.15],
+      scale: [1, 0.98],
       opacity: [1, 0],
       translateY: [0, 15],
-      duration: 430,
-      ease: "inExpo",
-      onComplete: () => setIsMounted(false)
+      duration: 200,
+      ease: "in(2)",
+      onComplete: () => {
+        setIsMounted(false);
+        requestAnimationFrame(() => launcherRef.current?.focus());
+      },
     });
   }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    const id = requestAnimationFrame(() => {
+      const target = isPersonaSetupOpen
+        ? panelRef.current?.querySelector(".ai-persona-option")
+        : textareaRef.current || panelRef.current?.querySelector("button");
+      target?.focus();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [isMounted, isPersonaSetupOpen]);
 
   const openChat = useCallback(() => {
     if (isMounted) {
@@ -760,14 +721,14 @@ function AiAssistantChat() {
 
     panel.style.transformOrigin = "right bottom";
     animationRef.current = animate(panel, {
-      scale: [0.15, 1],
+      scale: [0.98, 1],
       opacity: [0, 1],
       translateY: [15, 0],
-      duration: 520,
-      ease: "outExpo",
+      duration: 260,
+      ease: "out(3)",
       onComplete: () => {
         if (isPersonaComplete(personaRef.current)) focusTextarea();
-      }
+      },
     });
 
     return () => {
@@ -837,7 +798,7 @@ function AiAssistantChat() {
       setIsPersonaSetupOpen(false);
       focusTextarea();
     },
-    [focusTextarea]
+    [focusTextarea],
   );
 
   const selectPersonaType = useCallback(
@@ -849,10 +810,10 @@ function AiAssistantChat() {
 
       setPersonaDraft((current) => ({
         type,
-        gender: current.type === type ? current.gender : ""
+        gender: current.type === type ? current.gender : "",
       }));
     },
-    [applyPersona]
+    [applyPersona],
   );
 
   const selectPersonaGender = useCallback(
@@ -860,7 +821,7 @@ function AiAssistantChat() {
       if (!personaNeedsGender(personaDraft.type)) return;
       applyPersona({ type: personaDraft.type, gender });
     },
-    [applyPersona, personaDraft.type]
+    [applyPersona, personaDraft.type],
   );
 
   const closePersonaSetup = useCallback(() => {
@@ -886,14 +847,15 @@ function AiAssistantChat() {
     const userEntry = {
       id: `user-${Date.now()}`,
       role: "user",
-      content: userMessage
+      content: userMessage,
     };
-    const conversationId = conversationIdRef.current || getStoredConversationId(currentPersona);
+    const conversationId =
+      conversationIdRef.current || getStoredConversationId(currentPersona);
     const outgoingHistory = [...messages, userEntry]
       .slice(-16)
       .map((messageEntry) => ({
         role: messageEntry.role,
-        content: messageEntry.content
+        content: messageEntry.content,
       }));
 
     setMessages((current) => [...current, userEntry]);
@@ -904,7 +866,7 @@ function AiAssistantChat() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           conversation_id: conversationId,
@@ -913,15 +875,17 @@ function AiAssistantChat() {
           systemPrompt: buildPersonaSystemPrompt(currentPersona),
           persona: {
             ...currentPersona,
-            label: getPersonaLabel(currentPersona)
-          }
-        })
+            label: getPersonaLabel(currentPersona),
+          },
+        }),
       });
 
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(data.error || "AI Assistant sedang tidak bisa merespons.");
+        throw new Error(
+          data.error || "AI Assistant sedang tidak bisa merespons.",
+        );
       }
 
       const assistantText = extractAssistantText(data);
@@ -931,8 +895,10 @@ function AiAssistantChat() {
         {
           id: `assistant-${Date.now()}`,
           role: "assistant",
-          content: assistantText || "Maaf, saya belum menerima jawaban yang bisa ditampilkan."
-        }
+          content:
+            assistantText ||
+            "Maaf, saya belum menerima jawaban yang bisa ditampilkan.",
+        },
       ]);
     } catch (error) {
       setMessages((current) => [
@@ -941,13 +907,16 @@ function AiAssistantChat() {
           id: `assistant-error-${Date.now()}`,
           role: "assistant",
           isError: true,
-          content: error.message || "Maaf, AI Assistant sedang bermasalah. Coba lagi sebentar lagi."
-        }
+          content:
+            error.message ||
+            "Maaf, AI Assistant sedang bermasalah. Coba lagi sebentar lagi.",
+        },
       ]);
     } finally {
       setIsSending(false);
+      focusTextarea();
     }
-  }, [input, isSending, messages, persona]);
+  }, [focusTextarea, input, isSending, messages, persona]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -955,7 +924,12 @@ function AiAssistantChat() {
   };
 
   const handleInputKeyDown = (event) => {
-    if (event.key !== "Enter" || event.shiftKey) return;
+    if (
+      event.key !== "Enter" ||
+      event.shiftKey ||
+      event.nativeEvent.isComposing
+    )
+      return;
 
     event.preventDefault();
     sendMessage();
@@ -965,9 +939,10 @@ function AiAssistantChat() {
     <>
       <button
         type="button"
+        ref={launcherRef}
         className={`chat-fab ${isMounted ? "is-hidden" : ""}`}
         onClick={isMounted ? closeChat : openChat}
-        aria-label={isMounted ? "Minimize AI Assistant" : "Open AI Assistant"}
+        aria-label={isMounted ? "Tutup AI Assistant" : "Buka AI Assistant"}
         aria-expanded={isMounted}
         aria-hidden={isMounted}
         tabIndex={isMounted ? -1 : 0}
@@ -999,6 +974,7 @@ function AiAssistantChat() {
                 type="button"
                 className="ai-chat-icon-button"
                 onClick={openPersonaSetup}
+                disabled={isSending}
                 aria-label="Pengaturan persona"
                 title="Pengaturan persona"
               >
@@ -1008,16 +984,19 @@ function AiAssistantChat() {
                 type="button"
                 className="ai-chat-icon-button ai-chat-clear-icon"
                 onClick={clearChat}
-                disabled={messages.length === 0 && !input}
-                aria-label="Clear chat"
-                title="Clear chat"
+                disabled={isSending || (messages.length === 0 && !input)}
+                aria-label="Hapus percakapan"
+                title="Hapus percakapan"
               >
                 <Trash2 size={17} />
               </button>
-              <button type="button" className="ai-chat-icon-button" onClick={closeChat} aria-label="Minimize chat" title="Minimize">
-                <Minus size={18} />
-              </button>
-              <button type="button" className="ai-chat-icon-button" onClick={closeChat} aria-label="Close chat" title="Close">
+              <button
+                type="button"
+                className="ai-chat-icon-button"
+                onClick={closeChat}
+                aria-label="Tutup chat"
+                title="Tutup"
+              >
                 <X size={18} />
               </button>
             </div>
@@ -1036,13 +1015,20 @@ function AiAssistantChat() {
               <div className="ai-chat-messages" aria-live="polite">
                 {messages.length === 0 ? (
                   <div className="ai-chat-empty">
-                    <p>Mulai chat dengan AI Assistant.</p>
+                    <Bot size={28} aria-hidden="true" />
+                    <h3>Ada yang ingin diceritakan?</h3>
+                    <p>Mulai obrolan dengan persona pilihanmu.</p>
                   </div>
                 ) : null}
 
                 {messages.map((message) => (
-                  <div key={message.id} className={`ai-chat-row ${message.role === "user" ? "is-user" : "is-ai"}`}>
-                    <div className={`ai-chat-bubble ${message.isError ? "is-error" : ""}`}>
+                  <div
+                    key={message.id}
+                    className={`ai-chat-row ${message.role === "user" ? "is-user" : "is-ai"}`}
+                  >
+                    <div
+                      className={`ai-chat-bubble ${message.isError ? "is-error" : ""}`}
+                    >
                       {message.role === "assistant" ? (
                         <MarkdownContent content={message.content} />
                       ) : (
@@ -1054,7 +1040,11 @@ function AiAssistantChat() {
 
                 {isSending ? (
                   <div className="ai-chat-row is-ai">
-                    <div className="ai-chat-bubble ai-typing-bubble" aria-label="AI Assistant sedang mengetik">
+                    <div
+                      className="ai-chat-bubble ai-typing-bubble"
+                      role="status"
+                      aria-label="AI Assistant sedang mengetik"
+                    >
                       <span className="ai-typing-dot" />
                       <span className="ai-typing-dot" />
                       <span className="ai-typing-dot" />
@@ -1077,7 +1067,12 @@ function AiAssistantChat() {
                     aria-label="Tulis pesan untuk AI Assistant"
                     disabled={isSending}
                   />
-                  <button type="submit" className="ai-chat-send" disabled={!input.trim() || isSending} aria-label="Kirim pesan">
+                  <button
+                    type="submit"
+                    className="ai-chat-send"
+                    disabled={!input.trim() || isSending}
+                    aria-label="Kirim pesan"
+                  >
                     <Send size={18} />
                   </button>
                 </form>
@@ -1090,17 +1085,32 @@ function AiAssistantChat() {
   );
 }
 
-function PersonaSetup({ draft, hasActivePersona, onCancel, onSelectGender, onSelectType }) {
-  const selectedOption = personaOptions.find((option) => option.id === draft.type);
+function PersonaSetup({
+  draft,
+  hasActivePersona,
+  onCancel,
+  onSelectGender,
+  onSelectType,
+}) {
+  const selectedOption = personaOptions.find(
+    (option) => option.id === draft.type,
+  );
   const needsGender = Boolean(selectedOption?.needsGender);
 
   return (
-    <div className="ai-persona-screen" role="dialog" aria-modal="true" aria-labelledby="ai-persona-title">
+    <div
+      className="ai-persona-screen"
+      role="group"
+      aria-labelledby="ai-persona-title"
+    >
       <div className="ai-persona-panel">
         <div className="ai-persona-heading">
           <span className="ai-persona-kicker">Setup Persona</span>
           <h3 id="ai-persona-title">Pilih gaya ngobrol</h3>
-          <p>Persona ini akan dipakai untuk semua pesan berikutnya sampai kamu menggantinya lagi.</p>
+          <p>
+            Persona ini akan dipakai untuk semua pesan berikutnya sampai kamu
+            menggantinya lagi.
+          </p>
         </div>
 
         <div className="ai-persona-options" aria-label="Pilihan persona">
@@ -1112,7 +1122,11 @@ function PersonaSetup({ draft, hasActivePersona, onCancel, onSelectGender, onSel
               onClick={() => onSelectType(option.id)}
             >
               <span>{option.label}</span>
-              {option.needsGender ? <small>Pilih gender</small> : <small>Langsung aktif</small>}
+              {option.needsGender ? (
+                <small>Pilih gender</small>
+              ) : (
+                <small>Langsung aktif</small>
+              )}
             </button>
           ))}
         </div>
@@ -1120,7 +1134,10 @@ function PersonaSetup({ draft, hasActivePersona, onCancel, onSelectGender, onSel
         {needsGender ? (
           <div className="ai-persona-gender">
             <p>Pilih gender untuk persona {selectedOption.label}.</p>
-            <div className="ai-persona-options is-gender" aria-label="Pilihan gender persona">
+            <div
+              className="ai-persona-options is-gender"
+              aria-label="Pilihan gender persona"
+            >
               {genderOptions.map((option) => (
                 <button
                   key={option.id}
@@ -1137,7 +1154,11 @@ function PersonaSetup({ draft, hasActivePersona, onCancel, onSelectGender, onSel
 
         {hasActivePersona ? (
           <div className="ai-persona-actions">
-            <button type="button" className="ai-persona-cancel" onClick={onCancel}>
+            <button
+              type="button"
+              className="ai-persona-cancel"
+              onClick={onCancel}
+            >
               Batal
             </button>
           </div>
@@ -1147,799 +1168,497 @@ function PersonaSetup({ draft, hasActivePersona, onCancel, onSelectGender, onSel
   );
 }
 
-function Header({ isDark, isMenuOpen, onToggleMenu, onCloseMenu, onNavigate, onToggleTheme, themeLabel }) {
-  const themeButtonRef = useRef(null);
-  const themeIconRef = useRef(null);
-  const menuIconRef = useRef(null);
-  const mobileNavRef = useRef(null);
-  const firstThemeRender = useRef(true);
-  const firstMenuRender = useRef(true);
-
+function Header({ theme, activeSection, onToggleTheme }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuButtonRef = useRef(null);
+  const headerRef = useRef(null);
   useEffect(() => {
-    if (firstThemeRender.current) {
-      firstThemeRender.current = false;
-      return;
-    }
-
-    if (prefersReducedMotion()) return;
-
-    animate(themeButtonRef.current, {
-      scale: [0.92, 1],
-      duration: 340,
-      ease: "out(3)"
-    });
-
-    animate(themeIconRef.current, {
-      opacity: [0, 1],
-      rotate: [isDark ? -80 : 80, 0],
-      scale: [0.65, 1],
-      duration: 430,
-      ease: "out(4)"
-    });
-  }, [isDark]);
-
+    if (!isOpen) return;
+    const close = (event) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    const outside = (event) => {
+      if (!headerRef.current?.contains(event.target)) setIsOpen(false);
+    };
+    document.addEventListener("keydown", close);
+    document.addEventListener("pointerdown", outside);
+    return () => {
+      document.removeEventListener("keydown", close);
+      document.removeEventListener("pointerdown", outside);
+    };
+  }, [isOpen]);
   useEffect(() => {
-    const nav = mobileNavRef.current;
-    const icon = menuIconRef.current;
-    if (!nav) return;
-
-    const links = [...nav.querySelectorAll(".mobile-nav-link")];
-    const reduceMotion = prefersReducedMotion();
-
-    if (firstMenuRender.current) {
-      firstMenuRender.current = false;
-      nav.style.height = "0px";
-      nav.style.opacity = "0";
-      nav.style.transform = "translateY(-8px)";
-      links.forEach((link) => {
-        link.style.opacity = "0";
-        link.style.transform = "translateY(8px)";
-      });
-      return;
-    }
-
-    if (icon && !reduceMotion) {
-      animate(icon, {
-        rotate: [isMenuOpen ? -90 : 90, 0],
-        scale: [0.75, 1],
-        opacity: [0, 1],
-        duration: 330,
-        ease: "out(3)"
-      });
-    }
-
-    if (reduceMotion) {
-      nav.style.height = isMenuOpen ? "auto" : "0px";
-      nav.style.opacity = isMenuOpen ? "1" : "0";
-      links.forEach((link) => {
-        link.style.opacity = isMenuOpen ? "1" : "0";
-      });
-      return;
-    }
-
-    if (isMenuOpen) {
-      nav.style.height = "0px";
-      nav.style.opacity = "0";
-      nav.style.transform = "translateY(-8px)";
-      links.forEach((link) => {
-        link.style.opacity = "0";
-        link.style.transform = "translateY(8px)";
-      });
-
-      const targetHeight = nav.scrollHeight;
-      createTimeline({
-        defaults: { ease: "out(3)" },
-        onComplete: () => {
-          nav.style.height = "auto";
-        }
-      })
-        .add(
-          nav,
-          {
-            height: ["0px", `${targetHeight}px`],
-            opacity: [0, 1],
-            translateY: [-8, 0],
-            duration: 420
-          },
-          0
-        )
-        .add(
-          links,
-          {
-            opacity: [0, 1],
-            translateY: [8, 0],
-            duration: 360,
-            delay: stagger(45)
-          },
-          80
-        );
-    } else {
-      const currentHeight = nav.scrollHeight;
-      nav.style.height = `${currentHeight}px`;
-
-      createTimeline({ defaults: { ease: "inOut(3)" } })
-        .add(
-          links,
-          {
-            opacity: [1, 0],
-            translateY: [0, -6],
-            duration: 180,
-            delay: stagger(24)
-          },
-          0
-        )
-        .add(
-          nav,
-          {
-            height: [`${currentHeight}px`, "0px"],
-            opacity: [1, 0],
-            translateY: [0, -8],
-            duration: 300
-          },
-          60
-        );
-    }
-  }, [isMenuOpen]);
-
+    const media = window.matchMedia("(min-width: 900px)");
+    const resize = () => {
+      if (media.matches) setIsOpen(false);
+    };
+    media.addEventListener("change", resize);
+    return () => media.removeEventListener("change", resize);
+  }, []);
+  const links = navItems.map((item) => (
+    <a
+      key={item.id}
+      href={`#${item.id}`}
+      aria-current={activeSection === item.id ? "location" : undefined}
+      onClick={() => {
+        setIsOpen(false);
+        if (isOpen)
+          requestAnimationFrame(() =>
+            document.getElementById(item.id)?.focus({ preventScroll: true }),
+          );
+      }}
+    >
+      {item.label}
+    </a>
+  ));
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b-2 border-[color:var(--border)] bg-[color:var(--page-bg)]">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Navigasi utama">
-        <button type="button" className="group flex items-center gap-3" onClick={() => onNavigate("hero")}>
-          <span className="grid h-10 w-10 place-items-center rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface-strong)] text-sm font-black tracking-normal text-[color:var(--text)] shadow-retro transition duration-300 group-hover:-translate-y-0.5 group-hover:border-[color:var(--border)]">
-            KY
+    <header ref={headerRef} className="site-header">
+      <nav className="container nav-inner" aria-label="Navigasi utama">
+        <a
+          className="brand"
+          href="#hero"
+          onClick={() => setIsOpen(false)}
+          aria-label="Khazul Yussery, beranda"
+        >
+          <span className="brand-mark">
+            k<span>y.</span>
           </span>
-          <span className="hidden text-sm font-semibold text-[color:var(--text)] sm:inline">Khazul Yussery</span>
-        </button>
-
-        <div className="hidden items-center gap-1 lg:flex">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onNavigate(item.id)}
-              className="rounded-md px-3 py-2 text-sm font-medium text-[color:var(--muted)] transition hover:bg-[color:var(--accent-soft)] hover:text-[color:var(--text)]"
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2">
+          <span className="brand-name">Khazul Yussery</span>
+        </a>
+        <div className="desktop-nav">{links}</div>
+        <div className="nav-actions">
           <button
-            ref={themeButtonRef}
-            type="button"
+            className="icon-button theme-toggle"
             onClick={onToggleTheme}
-            className="grid h-10 w-10 place-items-center rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text)] transition hover:-translate-y-0.5 hover:border-[color:var(--border)] hover:bg-[color:var(--accent-soft)]"
-            aria-label={themeLabel}
-            title={themeLabel}
+            aria-label={
+              theme === "dark" ? "Aktifkan light mode" : "Aktifkan dark mode"
+            }
           >
-            <span ref={themeIconRef} className="grid place-items-center">
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            </span>
+            {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
           </button>
-          <button
-            type="button"
-            onClick={onToggleMenu}
-            className="grid h-10 w-10 place-items-center rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text)] transition hover:bg-[color:var(--accent-soft)] lg:hidden"
-            aria-label={isMenuOpen ? "Tutup menu" : "Buka menu"}
-            aria-expanded={isMenuOpen}
+          <a
+            className="nav-contact"
+            href="https://t.me/khazulyss"
+            target="_blank"
+            rel="noreferrer"
           >
-            <span ref={menuIconRef} className="grid place-items-center">
-              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </span>
+            Mari terhubung <ArrowUpRight size={15} />
+          </a>
+          <button
+            ref={menuButtonRef}
+            className="icon-button menu-toggle"
+            aria-label={isOpen ? "Tutup menu" : "Buka menu"}
+            aria-expanded={isOpen}
+            aria-controls="mobile-nav"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X size={21} /> : <Menu size={21} />}
           </button>
         </div>
       </nav>
-
-      <div
-        ref={mobileNavRef}
-        aria-hidden={!isMenuOpen}
-        className={`h-0 -translate-y-2 overflow-hidden border-t-2 bg-[color:var(--page-bg)] px-4 py-0 opacity-0 lg:hidden ${
-          isMenuOpen ? "pointer-events-auto border-[color:var(--border)]" : "pointer-events-none border-transparent"
-        }`}
+      <nav
+        id="mobile-nav"
+        className="mobile-nav container"
+        aria-label="Navigasi mobile"
+        hidden={!isOpen}
       >
-        <div className="mx-auto grid max-w-6xl gap-1 py-3">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => {
-                onCloseMenu();
-                onNavigate(item.id);
-              }}
-              className="mobile-nav-link rounded-md px-3 py-3 text-left text-sm font-semibold text-[color:var(--muted)] transition hover:bg-[color:var(--accent-soft)] hover:text-[color:var(--text)]"
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </div>
+        {links}
+      </nav>
     </header>
   );
 }
 
 function Hero() {
-  const [typedBadge, setTypedBadge] = useState(heroBadgeText);
-
-  useEffect(() => {
-    if (prefersReducedMotion()) {
-      setTypedBadge(heroBadgeText);
-      return undefined;
-    }
-
-    let cursor = 0;
-    let isDeleting = false;
-    let timeoutId;
-
-    const tick = () => {
-      if (!isDeleting) {
-        cursor = Math.min(heroBadgeText.length, cursor + 1);
-        setTypedBadge(heroBadgeText.slice(0, cursor));
-
-        if (cursor === heroBadgeText.length) {
-          isDeleting = true;
-          timeoutId = window.setTimeout(tick, 1100);
-          return;
-        }
-
-        timeoutId = window.setTimeout(tick, 82);
-        return;
-      }
-
-      cursor = Math.max(0, cursor - 1);
-      setTypedBadge(heroBadgeText.slice(0, cursor));
-
-      if (cursor === 0) {
-        isDeleting = false;
-        timeoutId = window.setTimeout(tick, 360);
-        return;
-      }
-
-      timeoutId = window.setTimeout(tick, 48);
-    };
-
-    setTypedBadge("");
-    timeoutId = window.setTimeout(tick, 280);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, []);
-
   return (
-    <section id="hero" className="relative pt-24 sm:pt-28">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 sm:px-6 sm:pb-20 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:pb-24">
-        <div className="reveal">
-          <div className="hero-typing-badge mb-5 inline-flex items-center gap-2 rounded-md border-2 border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-sm font-medium text-[color:var(--muted)]">
-            <Terminal size={16} className="text-[color:var(--accent)]" />
-            <span className="hero-typing-text">
-              <span className="sr-only">{heroBadgeText}</span>
-              <span className="hero-typing-measure" aria-hidden="true">{heroBadgeText}</span>
-              <span className="hero-typing-live" aria-hidden="true">
-                <span>{typedBadge}</span>
-                <span className="hero-typing-cursor" aria-hidden="true" />
-              </span>
+    <section id="hero" className="hero container" tabIndex={-1}>
+      <div className="hero-copy reveal">
+        <p className="eyebrow hero-eyebrow">
+          <span className="status-dot" /> Belajar. Membangun. Berkembang.
+        </p>
+        <h1>
+          Khazul
+          <br />
+          <span>
+            Yussery<span className="accent">.</span>
+          </span>
+        </h1>
+        <p className="hero-role">Self-taught tech enthusiast</p>
+        <p className="hero-description">
+          Mengubah rasa ingin tahu menjadi project nyata. Saya belajar dan
+          membangun bot, automation, serta pengalaman web secara mandiri.
+        </p>
+        <div className="button-row">
+          <a className="button button-primary" href="#project">
+            Lihat Project <ArrowUpRight size={18} />
+          </a>
+          <a
+            className="button button-secondary"
+            href="https://t.me/khazulyss"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Hubungi Saya <MessageCircle size={17} />
+          </a>
+        </div>
+        <div className="hero-topics">
+          <span>Bot & automation</span>
+          <span>Web development</span>
+          <span>Aplikasi edukasi</span>
+        </div>
+      </div>
+      <div className="hero-visual reveal" data-delay="60">
+        <div className="portrait-frame">
+          <span className="portrait-label">THE PERSON BEHIND THE PROJECTS</span>
+          <img
+            src={profilePhoto}
+            alt="Khazul Yussery"
+            width="1080"
+            height="1080"
+            fetchPriority="high"
+          />
+          <div className="portrait-caption">
+            <span>Khazul Yussery</span>
+            <span>
+              Terus belajar, terus mencoba <ArrowUpRight size={15} />
             </span>
           </div>
-          <h1 className="max-w-3xl text-balance text-4xl font-black leading-tight tracking-normal text-[color:var(--text)] sm:text-5xl lg:text-6xl">
-            Khazul Yussery
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-[color:var(--muted)] sm:text-lg">
-            Lulusan TKJ yang saat ini bekerja sebagai sopir, tapi tetap serius belajar coding dan membangun project teknologi secara mandiri.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <PrimaryLink href="https://www.github.com/khazulys" icon={Code2}>
-              Lihat GitHub
-            </PrimaryLink>
-            <SecondaryLink href="https://t.me/khazulyss" icon={Send}>
-              Hubungi Telegram
-            </SecondaryLink>
+        </div>
+        <div className="portrait-note">
+          <span className="note-icon">
+            <Code2 size={21} />
+          </span>
+          <div>
+            <strong>Dibangun dari rasa ingin tahu.</strong>
+            <span>Satu ide, satu langkah, satu project.</span>
           </div>
         </div>
+        <span className="portrait-side">INDEPENDENT LEARNER / BUILDER</span>
+      </div>
+      <a className="hero-scroll" href="#project">
+        <span>Jelajahi karya saya</span>
+        <span aria-hidden="true">↓</span>
+      </a>
+    </section>
+  );
+}
 
-        <div className="reveal relative mx-auto w-full max-w-md lg:max-w-none" data-delay="110">
-          <div className="relative overflow-hidden rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)] p-2 shadow-retro">
-            <img
-              src={profilePhoto}
-              alt="Khazul Yussery"
-              className="aspect-square w-full rounded-lg object-cover"
-              width="1080"
-              height="1080"
-              loading="eager"
-            />
-          </div>
-          <div className="surface-strong absolute -bottom-4 left-4 right-4 rounded-lg p-4 shadow-retro sm:left-auto sm:right-6 sm:w-72">
-            <div className="flex items-start gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[color:var(--accent-soft)] text-[color:var(--accent)]">
-                <Code2 size={20} />
-              </div>
-              <p className="text-sm leading-6 text-[color:var(--muted)]">
-                Belajar dari project nyata: bot, automation, UI, integrasi API, dan eksperimen AI.
-              </p>
-            </div>
-          </div>
+function Section({
+  id,
+  number,
+  eyebrow,
+  title,
+  description,
+  children,
+  className = "",
+}) {
+  return (
+    <section id={id} tabIndex={-1} className={`section ${className}`}>
+      <div className="container">
+        <div className="section-heading reveal">
+          <p className="eyebrow">
+            <span className="section-number">{number}</span>
+            {eyebrow}
+          </p>
+          <h2>{title}</h2>
+          {description && <p className="section-description">{description}</p>}
         </div>
+        {children}
       </div>
     </section>
   );
 }
 
-function About() {
-  const flightStageRef = useRef(null);
-  const flightSvgRef = useRef(null);
-  const flightPathRef = useRef(null);
-  const flightPlaneRef = useRef(null);
-  const cardRefs = useRef([]);
-  const checkpointRefs = useRef([]);
-  const progressRef = useRef({ value: 0 });
-  const targetProgressRef = useRef(0);
-  const frameRef = useRef(null);
-  const activeIndexRef = useRef(0);
-  const pathLengthRef = useRef(1);
-  const checkpointStopsRef = useRef([0, 0.34, 0.67, 1]);
-  const [activeMilestone, setActiveMilestone] = useState(0);
-
-  useEffect(() => {
-    const stage = flightStageRef.current;
-    const svg = flightSvgRef.current;
-    const path = flightPathRef.current;
-    const plane = flightPlaneRef.current;
-    if (!stage || !svg || !path || !plane) return undefined;
-    const supportsMotionPath = window.CSS?.supports?.("offset-path", 'path("M 0 0 L 1 1")') ?? false;
-
-    const setFlightPosition = (progress) => {
-      const clampedProgress = Math.min(1, Math.max(0, progress));
-      const pathLength = pathLengthRef.current || 1;
-      const currentLength = pathLength * clampedProgress;
-
-      if (supportsMotionPath) {
-        plane.style.offsetDistance = `${clampedProgress * 100}%`;
-      } else {
-        const point = path.getPointAtLength(currentLength);
-        const before = path.getPointAtLength(Math.max(0, currentLength - 4));
-        const after = path.getPointAtLength(Math.min(pathLength, currentLength + 4));
-        const angle = (Math.atan2(after.y - before.y, after.x - before.x) * 180) / Math.PI;
-        const planeHalfWidth = (plane.offsetWidth || 44) / 2;
-        const planeHalfHeight = (plane.offsetHeight || 44) / 2;
-
-        plane.style.transform = `translate3d(${point.x - planeHalfWidth}px, ${point.y - planeHalfHeight}px, 0) rotate(${angle}deg)`;
-      }
-
-      const nextIndex = checkpointStopsRef.current.reduce((activeIndex, checkpointProgress, index) => {
-        return clampedProgress + 0.018 >= checkpointProgress ? index : activeIndex;
-      }, 0);
-
-      if (activeIndexRef.current !== nextIndex) {
-        activeIndexRef.current = nextIndex;
-        setActiveMilestone(nextIndex);
-      }
-    };
-
-    const measureRoute = () => {
-      const stageRect = stage.getBoundingClientRect();
-      const routePoints = aboutBeats
-        .map((_, index) => {
-          const card = cardRefs.current[index];
-          const checkpoint = checkpointRefs.current[index];
-          if (!card || !checkpoint) return null;
-
-          const cardRect = card.getBoundingClientRect();
-          const checkpointRect = checkpoint.getBoundingClientRect();
-          const cardLeft = cardRect.left - stageRect.left;
-          const cardRight = cardRect.right - stageRect.left;
-          const cardTop = cardRect.top - stageRect.top;
-          const cardBottom = cardRect.bottom - stageRect.top;
-
-          return {
-            x: checkpointRect.left - stageRect.left + checkpointRect.width / 2,
-            y: checkpointRect.top - stageRect.top + checkpointRect.height / 2,
-            card: {
-              top: cardTop,
-              bottom: cardBottom,
-              left: cardLeft,
-              right: cardRight,
-              centerX: cardLeft + cardRect.width / 2,
-              centerY: cardTop + cardRect.height / 2
-            }
-          };
-        })
-        .filter(Boolean);
-
-      if (routePoints.length < 2) return false;
-
-      svg.setAttribute("viewBox", `0 0 ${Math.max(stageRect.width, 1)} ${Math.max(stageRect.height, 1)}`);
-      const route = createCardRoute(routePoints);
-      path.setAttribute("d", route);
-      pathLengthRef.current = path.getTotalLength() || 1;
-      checkpointStopsRef.current = createPathStops(path, routePoints);
-      if (supportsMotionPath) {
-        plane.style.offsetPath = `path("${route}")`;
-        plane.style.transform = "none";
-      }
-      setFlightPosition(progressRef.current.value);
-      return true;
-    };
-
-    const getTargetProgress = () => {
-      const rect = stage.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || 1;
-      const scrollStart = viewportHeight * 0.74;
-      const travelDistance = Math.max(rect.height * 1.28, viewportHeight * 0.92, 1);
-      return Math.min(1, Math.max(0, (scrollStart - rect.top) / travelDistance));
-    };
-
-    const runSmoothFlight = () => {
-      const current = progressRef.current.value;
-      const target = targetProgressRef.current;
-      const delta = target - current;
-
-      if (Math.abs(delta) < 0.0015) {
-        progressRef.current.value = target;
-        setFlightPosition(target);
-        frameRef.current = null;
-        return;
-      }
-
-      progressRef.current.value = current + delta * 0.16;
-      setFlightPosition(progressRef.current.value);
-      frameRef.current = window.requestAnimationFrame(runSmoothFlight);
-    };
-
-    const startSmoothFlight = () => {
-      if (frameRef.current) return;
-
-      frameRef.current = window.requestAnimationFrame(runSmoothFlight);
-    };
-
-    if (prefersReducedMotion()) {
-      progressRef.current.value = 1;
-      measureRoute();
-      setFlightPosition(1);
-      setActiveMilestone(checkpointRefs.current.filter(Boolean).length - 1);
-      return undefined;
-    }
-
-    let ticking = false;
-
-    const updateTargetProgress = (immediate = false) => {
-      targetProgressRef.current = getTargetProgress();
-
-      if (immediate) {
-        progressRef.current.value = targetProgressRef.current;
-        setFlightPosition(progressRef.current.value);
-        return;
-      }
-
-      startSmoothFlight();
-    };
-
-    const requestUpdate = () => {
-      if (ticking) return;
-
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        updateTargetProgress();
-        ticking = false;
-      });
-    };
-
-    const refreshRoute = () => {
-      measureRoute();
-      updateTargetProgress();
-    };
-
-    measureRoute();
-    updateTargetProgress(true);
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", refreshRoute);
-    const resizeObserver = new ResizeObserver(refreshRoute);
-    resizeObserver.observe(stage);
-    cardRefs.current.filter(Boolean).forEach((card) => resizeObserver.observe(card));
-
-    return () => {
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", refreshRoute);
-      resizeObserver.disconnect();
-      if (frameRef.current) window.cancelAnimationFrame(frameRef.current);
-    };
-  }, []);
-
+function Project() {
   return (
-    <Section id="tentang" eyebrow="Tentang Saya" title="Jalan saya tidak lurus ke IT, tapi minatnya tetap hidup.">
-      <div className="reveal about-cinema relative mx-auto max-w-5xl overflow-visible rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)] p-6 shadow-retro sm:p-8 lg:p-10">
-        <div className="relative z-10 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-md bg-[color:var(--accent-soft)] px-3 py-2 text-sm font-bold text-[color:var(--accent)]">
-              <Route size={17} />
-              Personal route
-            </div>
-            <p className="text-base leading-8 text-[color:var(--muted)]">
-              Saya lulusan SMK jurusan Teknik Komputer dan Jaringan. Setelah tamat SMK, saya tidak melanjutkan pendidikan IT dan tidak bekerja secara formal di bidang teknologi.
-            </p>
-            <p className="mt-4 text-base leading-8 text-[color:var(--muted)]">
-              Karena keterbatasan pendidikan dan biaya, saya sempat memendam minat di dunia IT dan bekerja serabutan. Saat ini saya bekerja sebagai sopir.
-            </p>
-            <p className="mt-4 text-base leading-8 text-[color:var(--muted)]">
-              Walaupun tidak bekerja di bidang teknologi, saya tetap punya minat dan passion besar di coding dan teknologi. Saya belajar, mencoba, gagal, memperbaiki, lalu membuat project secara mandiri.
-            </p>
+    <Section
+      id="project"
+      number="01"
+      eyebrow="Project unggulan"
+      title={
+        <>
+          Ide yang menjadi
+          <br />
+          sesuatu yang nyata.
+        </>
+      }
+      description="Tempat saya menerapkan hal yang dipelajari, menguji ide, dan terus memperbaikinya."
+      className="project-section"
+    >
+      <article className="project-card calistung-card reveal">
+        <div className="project-art calistung-art">
+          <div className="project-art-top" aria-hidden="true">
+            <span>
+              <span className="status-dot" /> LEARNING THROUGH PLAY
+            </span>
+            <span>AB / 01</span>
           </div>
-
-          <div
-            ref={flightStageRef}
-            className="about-flight-stage relative mx-auto w-full max-w-3xl overflow-visible rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface-strong)] p-5 sm:p-6 lg:max-w-none"
-          >
-            <svg ref={flightSvgRef} className="about-flight-svg" aria-hidden="true" focusable="false">
-              <path ref={flightPathRef} className="about-flight-path" />
-            </svg>
-            <div ref={flightPlaneRef} className="about-plane" aria-hidden="true">
-              <div className="about-plane-shell">
-                <SendHorizontal size={23} strokeWidth={2.35} />
-              </div>
+          <div className="calistung-preview">
+            <span className="calistung-letter" aria-hidden="true">
+              Aa
+            </span>
+            <div className="calistung-phone">
+              <img
+                src={calistungScreenshot}
+                alt="Beranda Ayo Belajar Calistung dengan pilihan Angka, Huruf & Kata, Menulis, dan Hewan"
+                width="390"
+                height="844"
+                loading="lazy"
+              />
             </div>
-
-            <div className="about-roadmap-list relative z-10">
-              {aboutBeats.map((beat, index) => {
-                const Icon = beat.icon;
-                return (
-                  <div
-                    key={beat.title}
-                    ref={(element) => {
-                      cardRefs.current[index] = element;
-                    }}
-                    className={`about-flight-card about-roadmap-card group rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--page-bg)] p-4 transition hover:border-[color:var(--border)] ${
-                      activeMilestone >= index ? "is-active" : ""
-                    }`}
-                    onMouseEnter={(event) => animateLift(event, true)}
-                    onMouseLeave={(event) => animateLift(event, false)}
-                    onFocus={(event) => animateLift(event, true)}
-                    onBlur={(event) => animateLift(event, false)}
-                    tabIndex={0}
-                  >
-                    <div className="about-card-header">
-                      <div
-                        ref={(element) => {
-                          checkpointRefs.current[index] = element;
-                        }}
-                        className="about-card-checkpoint grid h-10 w-10 place-items-center rounded-lg bg-[color:var(--accent-soft)] text-[color:var(--accent)]"
-                      >
-                        <Icon size={20} />
-                      </div>
-                      <div className="about-card-meta">
-                        <span className="text-xs font-black uppercase tracking-[0.16em] text-[color:var(--accent)]">{beat.label}</span>
-                        <span className="about-card-rule" />
-                        <span className="text-xs font-bold text-[color:var(--muted)]">0{index + 1}</span>
-                      </div>
-                    </div>
-                    <h3 className="about-card-title text-base font-black text-[color:var(--text)]">{beat.title}</h3>
-                    <p className="text-sm leading-7 text-[color:var(--muted)]">{beat.body}</p>
-                  </div>
-                );
-              })}
-            </div>
+            <span className="calistung-numbers" aria-hidden="true">
+              123
+            </span>
+          </div>
+          <div className="project-art-bottom" aria-hidden="true">
+            <span>MAIN. BELAJAR. TUMBUH BERSAMA.</span>
+            <BookOpen size={21} />
           </div>
         </div>
-      </div>
+        <div className="project-copy">
+          <div className="project-meta">
+            <span className="pill">Project terbaru</span>
+            <span>Android · Edukasi · Calistung</span>
+          </div>
+          <h3>
+            Ayo Belajar Calistung<span className="accent">.</span>
+          </h3>
+          <p>
+            Aplikasi Android untuk menemani anak mengenal huruf dan angka,
+            membaca, menulis, serta berhitung melalui permainan. Dilengkapi
+            panduan suara berbahasa Indonesia dan latihan yang bisa dimainkan
+            offline.
+          </p>
+          <ul className="feature-list">
+            {calistungFeatures.map((feature) => (
+              <li key={feature}>
+                <span aria-hidden="true">↗</span>
+                {feature}
+              </li>
+            ))}
+          </ul>
+          <div className="button-row">
+            <PrimaryLink
+              href="https://ayobelajarapp.vercel.app"
+              icon={ArrowUpRight}
+            >
+              Lihat Website
+            </PrimaryLink>
+          </div>
+        </div>
+      </article>
+      <article className="project-card reveal">
+        <div className="project-art" aria-hidden="true">
+          <div className="art-grid" />
+          <div className="project-art-top">
+            <span>
+              <span className="status-dot" /> AUTOMATION WORKSPACE
+            </span>
+            <span>HW / 02</span>
+          </div>
+          <div className="workflow">
+            <div className="workflow-source">
+              <Send size={22} />
+              <span>Telegram</span>
+            </div>
+            <div className="workflow-connector">
+              <span />
+              <span />
+            </div>
+            <div className="workflow-core">
+              <Bot size={34} strokeWidth={1.4} />
+              <span>
+                Haruchan<span>Automation, connected.</span>
+              </span>
+            </div>
+            <div className="workflow-branches">
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="workflow-outputs">
+              <span>
+                <MessageCircle size={18} />
+                WhatsApp
+              </span>
+              <span>
+                <Zap size={18} />
+                Workflow
+              </span>
+              <span>
+                <Bot size={18} />
+                AI persona
+              </span>
+            </div>
+          </div>
+          <div className="project-art-bottom">
+            <span>CONNECT. AUTOMATE. SIMPLIFY.</span>
+            <ArrowUpRight size={21} />
+          </div>
+        </div>
+        <div className="project-copy">
+          <div className="project-meta">
+            <span className="pill">Featured project</span>
+            <span>Bot · Automation · AI</span>
+          </div>
+          <h3>
+            Haruchan Warming<span className="accent">.</span>
+          </h3>
+          <p>
+            Automation Telegram dan WhatsApp dalam satu project. Ruang praktik
+            saya untuk membangun integrasi bot, mengelola workflow, dan
+            mengeksplorasi AI.
+          </p>
+          <ul className="feature-list">
+            {projectFeatures.map((feature) => (
+              <li key={feature}>
+                <span aria-hidden="true">↗</span>
+                {feature}
+              </li>
+            ))}
+          </ul>
+          <div className="button-row">
+            <PrimaryLink href="https://www.khzlai.web.id" icon={ArrowUpRight}>
+              Lihat Website
+            </PrimaryLink>
+            <a
+              className="text-link"
+              href="https://t.me/Haruchan_bot"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Coba Bot <ArrowUpRight size={16} />
+            </a>
+            <a
+              className="text-link"
+              href="https://t.me/haruchan_channel"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Channel <ArrowUpRight size={16} />
+            </a>
+          </div>
+        </div>
+      </article>
     </Section>
   );
 }
 
-function Journey() {
+function About() {
   return (
-    <Section id="perjalanan" eyebrow="Journey" title="Perjalanan yang dibangun pelan-pelan.">
-      <div className="relative grid gap-5 md:grid-cols-2">
-        {journey.map((item, index) => (
-          <div
-            key={item.title}
-            className="reveal group relative min-h-64 overflow-hidden rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)] p-5 shadow-retro transition duration-300 hover:-translate-y-1 hover:bg-[color:var(--surface-strong)]"
-            data-delay={index * 70}
-          >
-            <div className="absolute right-4 top-2 select-none text-7xl font-black leading-none text-[color:var(--accent-soft)] sm:text-8xl">
-              0{index + 1}
-            </div>
-            <div className="relative z-10 flex min-h-52 flex-col justify-end">
-              <span className="mb-5 h-1 w-16 bg-[color:var(--border)]" />
-              <h3 className="max-w-sm text-2xl font-black leading-tight text-[color:var(--text)]">{item.title}</h3>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-[color:var(--muted)] sm:text-base">{item.body}</p>
-            </div>
+    <Section
+      id="tentang"
+      number="02"
+      eyebrow="Tentang & perjalanan"
+      title={
+        <>
+          Jalannya berbeda.
+          <br />
+          Rasa ingin tahunya sama.
+        </>
+      }
+    >
+      <div className="about-layout">
+        <div className="about-copy reveal">
+          <p className="large-copy">
+            Saya percaya kesempatan untuk belajar bisa dimulai dari mana saja.
+          </p>
+          <p>
+            Saya lulusan SMK Teknik Komputer dan Jaringan. Kondisi pendidikan
+            dan biaya membawa saya bekerja di luar bidang teknologi; saat ini
+            saya bekerja sebagai sopir.
+          </p>
+          <p>
+            Di sela pekerjaan, minat pada teknologi tetap hidup. Saya
+            menyisihkan waktu untuk belajar coding, mencoba ide, dan membangun
+            project sendiri. Mencoba, gagal, memperbaiki, lalu mencoba lagi.
+          </p>
+          <div className="about-signature">
+            <span className="brand-mark">ky.</span>
+            <span>
+              Khazul Yussery<small>Selalu ada hal baru untuk dipelajari.</small>
+            </span>
           </div>
-        ))}
+        </div>
+        <div
+          id="perjalanan"
+          tabIndex={-1}
+          className="timeline reveal"
+          data-delay="60"
+        >
+          {journey.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <article className="timeline-item" key={item.title}>
+                <span className="timeline-point">
+                  <Icon size={19} />
+                </span>
+                <div>
+                  <span className="timeline-index">
+                    0{index + 1} / {item.label}
+                  </span>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </Section>
   );
 }
 
 function Skills() {
-  const orbitRef = useRef(null);
-  const orbitLoopRef = useRef(null);
-  const orbitAngleRef = useRef({ angle: 0 });
-
-  useEffect(() => {
-    const orbit = orbitRef.current;
-    if (!orbit) return undefined;
-
-    const badgeWrappers = [...orbit.querySelectorAll(".skill-orbit-badge")];
-    if (badgeWrappers.length === 0) return undefined;
-
-    const reduceMotion = prefersReducedMotion();
-    let orbitPositions = getSkillOrbitPositions(orbit);
-    let hasStartedOrbit = false;
-    const entranceAnimations = [];
-
-    const setBadgePosition = (badge, position, scale = 1) => {
-      badge.style.transform = `translate3d(${position.x}px, ${position.y}px, 0) scale(${scale})`;
-    };
-
-    const renderOrbit = () => {
-      const radians = (orbitAngleRef.current.angle * Math.PI) / 180;
-      const cos = Math.cos(radians);
-      const sin = Math.sin(radians);
-
-      badgeWrappers.forEach((badge, index) => {
-        const origin = orbitPositions[index];
-        setBadgePosition(badge, {
-          x: origin.x * cos - origin.y * sin,
-          y: origin.x * sin + origin.y * cos
-        });
-      });
-    };
-
-    const refreshOrbitPositions = () => {
-      orbitPositions = getSkillOrbitPositions(orbit);
-      if (hasStartedOrbit || reduceMotion) renderOrbit();
-    };
-
-    badgeWrappers.forEach((badge, index) => {
-      const target = orbitPositions[index];
-      badge.style.opacity = reduceMotion ? "1" : "0";
-      setBadgePosition(badge, reduceMotion ? target : { x: 0, y: 0 });
-    });
-
-    const startOrbit = () => {
-      if (reduceMotion) return;
-      hasStartedOrbit = true;
-      orbitLoopRef.current?.pause?.();
-      orbitAngleRef.current.angle = 0;
-      renderOrbit();
-      orbitLoopRef.current = animate(orbitAngleRef.current, {
-        angle: 360,
-        duration: 24000,
-        ease: "linear",
-        loop: true,
-        onUpdate: renderOrbit
-      });
-    };
-
-    if (reduceMotion) {
-      renderOrbit();
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-
-          let completed = 0;
-
-          badgeWrappers.forEach((badge, index) => {
-            const target = orbitPositions[index];
-            const state = { opacity: 0, scale: 0.62, x: 0, y: 0 };
-
-            const animation = animate(state, {
-              opacity: 1,
-              scale: 1,
-              x: target.x,
-              y: target.y,
-              duration: 920,
-              delay: index * 95,
-              ease: "out(4)",
-              onUpdate: () => {
-                badge.style.opacity = String(state.opacity);
-                setBadgePosition(badge, state, state.scale);
-              },
-              onComplete: () => {
-                completed += 1;
-                if (completed === badgeWrappers.length) startOrbit();
-              }
-            });
-
-            entranceAnimations.push(animation);
-          });
-
-          observer.unobserve(entry.target);
-        });
-      },
-      { threshold: 0.28, rootMargin: "0px 0px -8% 0px" }
-    );
-
-    observer.observe(orbit);
-    window.addEventListener("resize", refreshOrbitPositions);
-
-    return () => {
-      observer.disconnect();
-      orbitLoopRef.current?.pause?.();
-      entranceAnimations.forEach((animation) => animation.pause?.());
-      window.removeEventListener("resize", refreshOrbitPositions);
-    };
-  }, []);
-
   return (
-    <Section id="skill" eyebrow="Skill" title="Skill yang saya pakai untuk belajar dan membangun.">
-      <div className="reveal skill-console relative overflow-visible rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-retro sm:p-8">
-        <div className="relative z-10 grid gap-9 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
-          <div ref={orbitRef} className="skill-orbit relative mx-auto aspect-square w-full max-w-[34rem] overflow-visible">
-            <div className="skill-orbit-ring skill-orbit-ring-one" />
-            <div className="skill-orbit-ring skill-orbit-ring-two" />
-            <div className="absolute left-1/2 top-1/2 z-20 grid h-28 w-28 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--page-bg)] text-center shadow-retro sm:h-32 sm:w-32">
-              <div>
-                <p className="text-xl font-black uppercase leading-none text-[color:var(--text)] sm:text-2xl">Learning</p>
-                <p className="mt-1 text-xl font-black uppercase leading-none text-[color:var(--text)] sm:text-2xl">Stack</p>
-              </div>
+    <Section
+      id="skill"
+      number="03"
+      eyebrow="Kemampuan"
+      title={
+        <>
+          Peralatan untuk
+          <br />
+          mewujudkan ide.
+        </>
+      }
+      description="Teknologi yang saya gunakan dan terus pelajari melalui project."
+      className="skills-section"
+    >
+      <div className="skill-grid">
+        {skillGroups.map((group, index) => (
+          <article
+            className="skill-card reveal"
+            data-delay={index * 60}
+            key={group}
+          >
+            <div className="skill-card-heading">
+              <span className="section-number">0{index + 1}</span>
+              <h3>{group}</h3>
+              <ArrowUpRight size={18} />
             </div>
-
-            {skills.map((skill, index) => {
-              const Icon = skill.icon;
-              return (
-                <div
-                  key={skill.name}
-                  className="skill-orbit-badge absolute left-1/2 top-1/2 z-30"
-                >
-                  <div
-                    className="skill-chip-center"
-                  >
-                    <div
-                      className="skill-chip flex min-w-28 items-center gap-2 rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-xs font-bold text-[color:var(--text)] shadow-retro"
-                      tabIndex={0}
-                      onMouseEnter={(event) => animateLift(event, true)}
-                      onMouseLeave={(event) => animateLift(event, false)}
-                      onFocus={(event) => animateLift(event, true)}
-                      onBlur={(event) => animateLift(event, false)}
-                    >
-                      <Icon size={16} className="shrink-0 text-[color:var(--accent)]" />
-                      <span>{skill.name}</span>
+            <div className="skill-list">
+              {skills
+                .filter((skill) => skill.group === group)
+                .map((skill) => {
+                  const Icon = skill.icon;
+                  return (
+                    <div className="skill-row" key={skill.name}>
+                      <span className="skill-icon">
+                        <Icon size={20} />
+                      </span>
+                      <div>
+                        <h4>{skill.name}</h4>
+                        <p>{skill.note}</p>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="grid gap-4">
-            {skillGroups.map((group) => (
-              <div key={group} className="rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--page-bg)] p-4">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-black uppercase tracking-[0.16em] text-[color:var(--text)]">{group}</h3>
-                  <span className="h-px flex-1 bg-[color:var(--border)]" />
-                </div>
-                <div className="grid gap-4">
-                  {skills
-                    .filter((skill) => skill.group === group)
-                    .map((skill) => {
-                      const Icon = skill.icon;
-                      return (
-                        <div key={skill.name} className="skill-meter group">
-                          <div className="mb-2 flex items-center justify-between gap-3">
-                            <span className="flex items-center gap-2 text-sm font-bold text-[color:var(--text)]">
-                              <Icon size={16} className="text-[color:var(--accent)]" />
-                              {skill.name}
-                            </span>
-                            <span className="text-xs font-semibold text-[color:var(--muted)]">{skill.note}</span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-[color:var(--border)]">
-                            <div
-                              className="skill-meter-fill h-full rounded-full"
-                              data-level={skill.level}
-                              style={{ "--skill-meter-color": skill.color }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+                  );
+                })}
+            </div>
+          </article>
+        ))}
       </div>
     </Section>
   );
@@ -1947,62 +1666,28 @@ function Skills() {
 
 function AiSection() {
   return (
-    <Section id="ai" eyebrow="Coding di Era AI" title="AI saya pakai sebagai alat bantu, bukan pengganti pemahaman.">
-      <div className="reveal overflow-hidden rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)]">
-        <div className="grid gap-0 lg:grid-cols-[0.92fr_1.08fr]">
-          <div className="border-b-2 border-[color:var(--border)] p-6 sm:p-8 lg:border-b-0 lg:border-r-2">
-            <div className="grid h-12 w-12 place-items-center rounded-lg bg-[color:var(--accent-soft)] text-[color:var(--accent)]">
-              <Code2 size={24} />
-            </div>
-            <h3 className="mt-6 text-2xl font-black tracking-normal text-[color:var(--text)]">Belajar lebih cepat, tetap pakai logika.</h3>
-          </div>
-          <div className="p-6 sm:p-8">
-            <p className="text-base leading-8 text-[color:var(--muted)]">
-              Saya menggunakan AI sebagai alat bantu dalam beberapa project, bukan karena tidak paham fundamental, tapi karena AI bisa mempercepat proses belajar, eksperimen, debugging, dan development.
-            </p>
-            <p className="mt-4 text-base leading-8 text-[color:var(--muted)]">
-              Menggunakan AI bukan berarti tidak bisa coding, selama tetap paham alur, logika, struktur, dan tujuan project. Bagi saya, AI membantu membuka jalan, sementara keputusan teknis tetap harus dipahami dan diuji.
-            </p>
-          </div>
+    <Section
+      id="ai"
+      number="04"
+      eyebrow="Pendekatan saya"
+      title="Belajar bersama AI. Tetap berpikir mandiri."
+    >
+      <div className="ai-approach reveal">
+        <div className="ai-approach-icon">
+          <Bot size={40} strokeWidth={1.3} />
+          <span>AI × HUMAN CURIOSITY</span>
         </div>
-      </div>
-    </Section>
-  );
-}
-
-function Project() {
-  return (
-    <Section id="project" eyebrow="Project Utama" title="Haruchan Warming">
-      <div className="reveal rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)] p-6 shadow-retro sm:p-8">
-        <div className="grid gap-8 lg:grid-cols-[1fr_0.78fr] lg:items-start">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-md bg-[color:var(--accent-soft)] px-3 py-2 text-sm font-semibold text-[color:var(--accent)]">
-              <Bot size={17} />
-              Telegram / WhatsApp automation
-            </div>
-            <p className="max-w-3xl text-base leading-8 text-[color:var(--muted)]">
-              Bot Telegram/WhatsApp automation untuk warming akun, pair warming, group warming, AI persona, voice note, auto status/bio, random media, dan API key.
-            </p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <PrimaryLink href="https://www.khzlai.web.id" icon={Globe2}>
-                Website
-              </PrimaryLink>
-              <SecondaryLink href="https://t.me/Haruchan_bot" icon={Send}>
-                Bot
-              </SecondaryLink>
-              <SecondaryLink href="https://t.me/haruchan_channel" icon={MessageCircle}>
-                Channel
-              </SecondaryLink>
-            </div>
-          </div>
-
-          <div className="grid gap-3 border-l-2 border-[color:var(--border)] pl-5">
-            {projectFeatures.map((feature) => (
-              <div key={feature} className="flex items-center gap-3 py-2 text-sm font-semibold text-[color:var(--text)]">
-                <span className="h-2 w-2 rounded-full bg-[color:var(--accent)]" />
-                {feature}
-              </div>
-            ))}
+        <div>
+          <h3>Alat bantu untuk melangkah lebih jauh.</h3>
+          <p>
+            Saya menggunakan AI untuk mempercepat belajar, eksperimen,
+            debugging, dan development. Alur, logika, struktur, serta keputusan
+            teknis tetap perlu saya pahami dan uji sendiri.
+          </p>
+          <div className="approach-tags">
+            <span>Eksplorasi</span>
+            <span>Pemahaman</span>
+            <span>Pengujian</span>
           </div>
         </div>
       </div>
@@ -2012,50 +1697,32 @@ function Project() {
 
 function Social() {
   return (
-    <Section id="social" eyebrow="Social Media" title="Tempat saya berbagi dan terhubung.">
-      <div className="reveal social-hub relative overflow-hidden rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)] p-6 shadow-retro sm:p-8">
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[0.62fr_1.38fr] lg:items-start">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-md border-2 border-[color:var(--border)] bg-[color:var(--accent-soft)] px-3 py-2 text-sm font-black text-[color:var(--accent)] shadow-retro-sm">
-              <MessageCircle size={17} />
-              Contact board
-            </div>
-            <p className="text-base leading-8 text-[color:var(--muted)]">
-              Beberapa tempat saya berbagi, menyimpan project, dan terhubung. Link dibuat tetap langsung ke profil asli supaya mudah dicek.
-            </p>
-            <div className="mt-6 hidden border-2 border-[color:var(--border)] bg-[color:var(--page-bg)] p-4 shadow-retro lg:block">
-              <p className="text-5xl font-black leading-none text-[color:var(--text)]">KY</p>
-              <p className="mt-2 text-xs font-black uppercase tracking-[0.18em] text-[color:var(--muted)]">Khazul Yussery</p>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            {socialLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="social-node flex min-h-20 items-center justify-between gap-4 rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 text-[color:var(--text)] shadow-retro-sm"
-                  onMouseEnter={(event) => animateLift(event, true)}
-                  onMouseLeave={(event) => animateLift(event, false)}
-                  onFocus={(event) => animateLift(event, true)}
-                  onBlur={(event) => animateLift(event, false)}
-                >
-                  <span className="flex items-center gap-3">
-                    <span className="grid h-10 w-10 place-items-center rounded-lg bg-[color:var(--accent-soft)] text-[color:var(--accent)]">
-                      <Icon size={20} />
-                    </span>
-                    <span className="text-sm font-bold">{link.name}</span>
-                  </span>
-                  <ArrowUpRight size={17} className="shrink-0 text-[color:var(--muted)]" />
-                </a>
-              );
-            })}
-          </div>
-        </div>
+    <Section
+      id="social"
+      number="05"
+      eyebrow="Di tempat lain"
+      title="Tetap terhubung."
+      description="Catatan, project, dan percakapan berlanjut di sini."
+    >
+      <div className="social-grid">
+        {socialLinks.map((link) => {
+          const Icon = link.icon;
+          return (
+            <a
+              className="social-link reveal"
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span className="social-icon">
+                <Icon size={20} />
+              </span>
+              <span>{link.name}</span>
+              <ArrowUpRight size={17} />
+            </a>
+          );
+        })}
       </div>
     </Section>
   );
@@ -2063,53 +1730,47 @@ function Social() {
 
 function Contact() {
   return (
-    <section id="contact" className="px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-      <div className="reveal mx-auto max-w-6xl overflow-hidden rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--text)] text-[color:var(--page-bg)] shadow-retro ">
-        <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-10">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.18em] opacity-70">Contact</p>
-            <h2 className="mt-3 max-w-2xl text-3xl font-black leading-tight tracking-normal sm:text-4xl">
-              Terbuka untuk ngobrol soal project, bot, automation, atau coding.
-            </h2>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-            {contactLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-[color:var(--page-bg)] bg-[color:var(--page-bg)] px-5 text-sm font-black text-[color:var(--text)] shadow-retro-sm transition hover:-translate-y-0.5 hover:opacity-90 "
-                >
-                  <Icon size={18} />
-                  {link.label}
-                </a>
-              );
-            })}
-          </div>
+    <section id="contact" tabIndex={-1} className="contact-section container">
+      <div className="contact-card reveal">
+        <div className="contact-decoration" aria-hidden="true">
+          ↗
+        </div>
+        <p className="eyebrow">
+          <span className="status-dot" /> Mari mulai percakapan
+        </p>
+        <h2>
+          Punya ide?
+          <br />
+          Mari kita bicarakan<span>.</span>
+        </h2>
+        <p>
+          Terbuka untuk ngobrol tentang project, bot, automation, atau hal
+          menarik seputar teknologi.
+        </p>
+        <div className="button-row">
+          <PrimaryLink href="https://t.me/khazulyss" icon={Send}>
+            Hubungi Telegram
+          </PrimaryLink>
+          <a
+            className="contact-github"
+            href="https://www.github.com/khazulys"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Jelajahi GitHub <ArrowUpRight size={17} />
+          </a>
         </div>
       </div>
-      <footer className="mx-auto max-w-6xl py-8 text-center text-sm text-[color:var(--muted)]">
-        <span>KY</span>
-        <span className="mx-2">/</span>
-        <span>Khazul Yussery</span>
+      <footer className="site-footer">
+        <a href="#hero" className="brand">
+          <span className="brand-mark">ky.</span>
+          <span>Khazul Yussery</span>
+        </a>
+        <p>Dibangun dengan rasa ingin tahu.</p>
+        <a className="text-link" href="#hero">
+          Kembali ke atas <span aria-hidden="true">↑</span>
+        </a>
       </footer>
-    </section>
-  );
-}
-
-function Section({ id, eyebrow, title, children }) {
-  return (
-    <section id={id} className="scroll-mt-24 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="reveal mb-8 max-w-3xl">
-          <p className="text-sm font-black uppercase tracking-[0.18em] text-[color:var(--accent)]">{eyebrow}</p>
-          <h2 className="mt-3 text-balance text-3xl font-black leading-tight tracking-normal text-[color:var(--text)] sm:text-4xl">{title}</h2>
-        </div>
-        {children}
-      </div>
     </section>
   );
 }
@@ -2117,27 +1778,13 @@ function Section({ id, eyebrow, title, children }) {
 function PrimaryLink({ href, icon: Icon, children }) {
   return (
     <a
+      className="button button-primary"
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--text)] px-5 text-sm font-black text-[color:var(--page-bg)] shadow-retro transition hover:-translate-y-0.5 hover:opacity-90 "
     >
-      <Icon size={18} />
       {children}
-    </a>
-  );
-}
-
-function SecondaryLink({ href, icon: Icon, children }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface)] px-5 text-sm font-black text-[color:var(--text)] transition hover:-translate-y-0.5 hover:border-[color:var(--border)] hover:bg-[color:var(--accent-soft)]"
-    >
       <Icon size={18} />
-      {children}
     </a>
   );
 }

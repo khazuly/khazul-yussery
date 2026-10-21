@@ -1,0 +1,70 @@
+{
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "frames": 900,
+  "duration": 30,
+  "transitionFrames": 10,
+  "scenes": [
+    {
+      "start": 0,
+      "end": 3,
+      "id": "portfolio-intro",
+      "caption": "KHAZUL YUSSERY / WEB PORTFOLIO"
+    },
+    {
+      "start": 3,
+      "end": 7,
+      "id": "portfolio-projects",
+      "caption": "DARI PORTOFOLIO KE PROJECT NYATA"
+    },
+    {
+      "start": 7,
+      "end": 10,
+      "id": "ayo-website",
+      "caption": "AYOBELAJARAPP.VERCEL.APP"
+    },
+    {
+      "start": 10,
+      "end": 12.7,
+      "id": "ayo-home",
+      "caption": "APLIKASI ANDROID / AYO BELAJAR CALISTUNG"
+    },
+    {
+      "start": 12.7,
+      "end": 15.3,
+      "id": "ayo-numbers",
+      "caption": "BELAJAR MENGENAL ANGKA"
+    },
+    {
+      "start": 15.3,
+      "end": 17.2,
+      "id": "ayo-reading",
+      "caption": "MENGENAL HURUF DAN MEMBACA"
+    },
+    {
+      "start": 17.2,
+      "end": 19,
+      "id": "ayo-writing",
+      "caption": "MENULIS / PANDUAN SUARA / OFFLINE"
+    },
+    {
+      "start": 19,
+      "end": 23,
+      "id": "haruchan",
+      "caption": "HARUCHAN WARMING / BOT & AUTOMATION"
+    },
+    {
+      "start": 23,
+      "end": 26,
+      "id": "haruchan-detail",
+      "caption": "TELEGRAM / WHATSAPP / AI PERSONA"
+    },
+    {
+      "start": 26,
+      "end": 30,
+      "id": "contact",
+      "caption": "TERBUKA UNTUK IDE DAN KOLABORASI"
+    }
+  ]
+}

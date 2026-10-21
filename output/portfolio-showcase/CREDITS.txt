@@ -1,0 +1,9 @@
+Music: "Night Owl" — Broke For Free
+Source: https://commons.wikimedia.org/wiki/File:Broke_For_Free_-_01_-_Night_Owl.ogg
+Licensed under CC BY 3.0: https://creativecommons.org/licenses/by/3.0/
+Changes: 30-second excerpt from 00:30, fades, loudness normalization, synchronization with visuals.
+
+Websites, photograph, and application screenshots: Khazul Yussery.
+Typography: Manrope, SIL Open Font License 1.1 (included).
+Device frames, lighting, compositing, and motion: drawn and animated in code.
+No generative AI images, video, music, or voice-over used.

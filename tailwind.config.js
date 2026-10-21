@@ -6,34 +6,16 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          "Poppins",
+          "Manrope",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
-          "sans-serif"
-        ]
+          "sans-serif",
+        ],
       },
-      animation: {
-        "fade-up": "fadeUp 0.7s ease-out both",
-        "soft-pulse": "softPulse 5s ease-in-out infinite"
-      },
-      keyframes: {
-        fadeUp: {
-          "0%": { opacity: "0", transform: "translateY(18px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" }
-        },
-        softPulse: {
-          "0%, 100%": { opacity: "0.72" },
-          "50%": { opacity: "1" }
-        }
-      },
-      boxShadow: {
-        retro: "var(--retro-shadow)",
-        "retro-sm": "var(--retro-shadow-sm)"
-      }
-    }
+    },
   },
-  plugins: []
+  plugins: [],
 };

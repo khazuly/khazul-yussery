@@ -1,0 +1,41 @@
+{
+  "createdAt": "2026-10-21T19:55:59.563Z",
+  "generativeMedia": false,
+  "portfolio": {
+    "source": "Local React app /public/khazul-yussery, captured through headless Chromium CDP",
+    "capture": "capture.mjs",
+    "modifications": "Light mode, reduced motion, hidden floating assistant and scrollbar for clean capture; no UI replacement"
+  },
+  "application": {
+    "source": "https://ayobelajarapp.vercel.app/",
+    "screens": [
+      "app-beranda.webp",
+      "app-angka.webp",
+      "app-membaca.webp",
+      "app-menulis.webp"
+    ],
+    "origin": "/assets/screens/{beranda,angka,membaca,menulis}.webp",
+    "modifications": "Scaled and composited in device frames"
+  },
+  "music": {
+    "title": "Night Owl",
+    "artist": "Broke For Free",
+    "releaseDate": "2011-01-18",
+    "source": "https://commons.wikimedia.org/wiki/File:Broke_For_Free_-_01_-_Night_Owl.ogg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/6/68/Broke_For_Free_-_01_-_Night_Owl.ogg",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "modifications": "30-second excerpt from 00:30, faded and normalized; synchronized with video"
+  },
+  "typography": {
+    "family": "Manrope",
+    "source": "https://fonts.google.com/specimen/Manrope",
+    "license": "SIL Open Font License 1.1; included in Manrope-OFL.txt"
+  },
+  "watermark": {
+    "text": "@khazulys",
+    "placement": "Top-right, within safe area",
+    "coverage": "All 900 frames",
+    "opacity": 0.72
+  }
+}
